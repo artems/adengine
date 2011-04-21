@@ -1,0 +1,13 @@
+Проблема
+    - при 2 и более баннеров на странице, нужно выдать один uid
+
+Генерация
+   crc32(IP + UA + Screen + TZ)
+
+Хранение
+    DOM Storage
+    Web Database
+    Internet Explorer userData behavior
+    Flash Local Storage
+    HTTP cookies
+    ETag
