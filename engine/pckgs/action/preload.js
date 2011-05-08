@@ -1,6 +1,8 @@
 var async = require("async")
   , Template = require("core/template")
   , Format = require("core/format")
+  , Network = require("core/network")
+  , Flight = require("core/flight")
   ;
 
 function Unit(app) {
@@ -9,14 +11,13 @@ function Unit(app) {
 
 Unit.prototype.execute = function(callback) {
     async.parallel([
-        this.loadTemplates.bind(this)
-        
+        this.loadTemplates.bind(this)        
       , function(callback) {
             async.waterfall([
                 this.loadFormats.bind(this)
-              //, this.loadNetworks.bind(this)
-              //, this.loadActiveFlights.bind(this)
-              //, this.loadActiveCreatives.bind(this)
+              , this.loadNetworks.bind(this)
+              , this.loadActiveFlights.bind(this)
+              , this.loadActiveCreatives.bind(this)
               //, this.loadActiveProfiles.bind(this)
               //, this.loadActiveBanners.bind(this)
               //, this.loadSitePlugs.bind(this)
@@ -66,7 +67,7 @@ Unit.prototype.loadTemplates = function(callback) {
                 Template.Create(item, function(err, template) {
                     if (!err) {
                         registry.template[item.id] = template;
-                    } 
+                    }
                     deferred(err);
                 });                
             });
@@ -111,7 +112,7 @@ Unit.prototype.loadFormats = function(callback) {
         }
     ], callback);
 };
-/*
+
 Unit.prototype.loadNetworks = function(callback) {
     var mongo = this.app.mongo
       , registry = this.app.registry;
@@ -130,11 +131,22 @@ Unit.prototype.loadNetworks = function(callback) {
         },
 
         function(result, callback) {
+            var deferred = async.deferred(callback, result.length);
+            
             registry.network = {};
+            
             result.forEach(function(item) {
-                registry.network[item.id] = item;
+                Network.Create(item, function(err, network) {
+                    if (!err) {
+                        network.setFormat(registry.format[item.format_id]);
+                        
+                        registry.network[item.id] = network;
+                    } 
+                    deferred(err);
+                });                
             });
-            callback();
+            
+            deferred();
         }
     ], callback);
 };
@@ -165,27 +177,31 @@ Unit.prototype.loadActiveFlights = function(callback) {
         },
 
         function(flights, callback) {
+            var deferred = async.deferred(callback, flights.length);
+            
             registry.flight = {};
-
+            
             flights.forEach(function(item) {
-                if (registry.network[item.network_id]) {
-                    var format_id = registry.network[item.network_id].format_id;
-
-                    registry.flight[item.id] = item;
-                    registry.flight[item.id].profiles = [];
-
-                    if (!item.is_plug) {
-                        registry.format[format_id].flights.push(item);
+                Flight.Create(item, function(err, flight) {
+                    if (!err) {
+                        var network = registry.network[item.network_id];
+                                                
+                        flight.setNetwork(network);
+                        
+                        if (!item.is_plug) {
+                            network.addFlight(flight);
+                        }
+                        
+                        flight_id.push(item.id);
+                        
+                        registry.flight[item.id] = flight;
                     }
                     
-                    flight_id.push(item.id);
-                } else {
-                    // TODO log warning network doesn't exists
-                    console.log('network ' + item.network_id + ' does not exists');
-                }
+                    deferred(err);
+                });                
             });
-
-            callback(null, flight_id);
+            
+            deferred();
         }
     ], function(err) {
         callback(err, flight_id);
@@ -213,19 +229,29 @@ Unit.prototype.loadActiveCreatives = function(flight_id, callback) {
         },
 
         function(creatives, callback) {
-            registry.creative = {};
+            var deferred = async.deferred(callback, creatives.length);
 
+            registry.creative = {};          
+                       
             creatives.forEach(function(item) {
-                registry.creative[item.id] = item;
+                Creative.Create(item, function(err, creative) {
+                    if (!err) {
+                        creative.setFlight(registry.flight[item.flight_id]);
+                        creative.setTemplate(registry.template[item.template_id]);
+                        
+                        registry.creative[item.id] = creative;
+                    } 
+                    deferred(err);
+                });                
             });
-
-            callback();
+            
+            deferred();
         }
     ], function(err) {
         callback(err, flight_id);
     });
 };
-
+/*
 Unit.prototype.loadActiveProfiles = function(flight_id, callback) {
     var mongo = this.app.mongo
       , registry = this.app.registry;
@@ -251,23 +277,32 @@ Unit.prototype.loadActiveProfiles = function(flight_id, callback) {
         },
 
         function(profiles, callback) {
+            var deferred = async.deferred(callback, profiles.length);
+            
             registry.profile = {};
 
-            profiles.forEach(function(item) {
-                registry.profile[item.id] = item;
-                registry.profile[item.id].banners = [];
-                registry.flight[item.flight_id].profiles.push(item);
-
-                profile_id.push(item.id);
-            });
-
             callback(null, profile_id);
+            
+            profiles.forEach(function(item) {
+                Profile.Create(item, function(err, profile) {
+                    if (!err) {
+                        profile.setFlight(registry.flight[item.flight_id]);
+                        
+                        profile_id.push(item.id);
+                        
+                        registry.profile[item.id] = profile;
+                    } 
+                    deferred(err);
+                });                
+            });
+            
+            deferred();
         }
     ], function(err) {
         callback(err, profile_id);
     });
 };
-
+/*
 Unit.prototype.loadActiveBanners = function(profile_id, callback) {
     var mongo = this.app.mongo
       , registry = this.app.registry;    

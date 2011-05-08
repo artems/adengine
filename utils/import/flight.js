@@ -31,7 +31,7 @@ module.exports = function(callback) {
                             account_id: item.account_id,
                             user_id: item.user_id,
                             network_id: item.net_id,
-                            prioprity:  item.flight_priority,
+                            priority:  item.flight_priority,
                             balance: item.flight_balance,
                             spent: item.flight_spent,
                             budget: item.flight_budget,

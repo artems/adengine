@@ -1,12 +1,17 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+  
 function Unit() {
+    Dummy.call(this);
+    
     this.id       = 0;
     this.uid      = null;
     this.flight   = null;
     this.template = null;
-    this.deleted  = false;
-
-    this.params = {};
+    this.params   = {};
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -16,11 +21,9 @@ Unit.Create = function(params, callback) {
         return;
     }
 
-    unit.id    = parseInt(params.id);
-    unit.uid   = params.uid;
-    unit.state = params.state;
-
-    unit.flight   = params.flight   || null;
+    unit.id = parseInt(params.id);
+    unit.uid = params.uid;    
+    unit.flight = params.flight || null;
     unit.template = params.template || null;
 
     callback(null, unit);
@@ -35,6 +38,10 @@ Unit._isValidParams = function(params) {
     }
 
     return true;
+};
+
+Unit.prototype.getUid = function() {
+    return this.uid;
 };
 
 Unit.prototype.setParam = function(name, value) {
@@ -65,10 +72,6 @@ Unit.prototype.getCode = function() {
     return this.getTemplate().getCode();
 };
 
-Unit.prototype.remove = function() {
-    this.deleted = true;
-}
-
 Unit.prototype.verify = function(callback) {
     if (this.deleted) {
         callback(null, false);
@@ -77,8 +80,7 @@ Unit.prototype.verify = function(callback) {
 
     var template = this.getTemplate()
       , params   = template.getParams()
-    ;
-    var result = true;
+      , result   = true;
 
     for (var i in params) {
         if (params.hasOwnProperty(i)) {

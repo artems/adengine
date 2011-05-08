@@ -29,7 +29,7 @@ module.exports = function(callback) {
                             id: item.net_id
                           , format_id: item.type_id
                           , name: item.net_title
-                          , group: item.net_group                          
+                          , group: item.net_group || ""                         
                         }, group.add());
                     });
                 });

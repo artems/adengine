@@ -4,15 +4,14 @@ var util = require("util")
 function Unit() {
     Dummy.call(this);
 
-    this.id = 0;
-    this.priority = 0;
+    this.id           = 0;
+    this.priority     = 0;
     this.distribution = "max";
-    this.url   = null;
-    this.begin = null;
-    this.end   = null;
-
-    this.profile  = null;
-    this.creative = null;
+    this.url          = null;
+    this.profile      = null;
+    this.creative     = null;
+    this.begin        = null;
+    this.end          = null;
 }
 
 util.inherits(Unit, Dummy);
@@ -28,13 +27,14 @@ Unit.Create = function(params, callback) {
     unit.id = parseInt(params.id);
     unit.prioprity = parseInt(params.priority);
     unit.distribution = params.distribution;
-    unit.url   = params.url;
-    unit.begin = params.begin;
-    unit.end   = params.end;
-    unit.state = params.state;
-
-    unit.profile  = params.profile  || null;
+    unit.url = params.url;   
+    unit.profile = params.profile || null;
     unit.creative = params.creative || null;
+    
+    if (params.begin && params.end) {
+        unit.begin = new Date(params.begin);
+        unit.end = new Date(params.end)
+    }
 
     callback(null, unit);
 };
@@ -90,6 +90,18 @@ Unit.prototype.verify = function(callback) {
     // TODO verify url
 
     this.creative.verify(callback);
+};
+
+Unit.prototype.getPriority = function() {
+    return this.priority;
+};
+
+Unit.prototype.distribution = function() {
+    return this.distribution;
+};
+
+Unit.prototype.getUrl = function() {
+    return this.url;
 };
 
 Unit.prototype.setBegin = function(begin) {

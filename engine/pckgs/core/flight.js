@@ -4,16 +4,14 @@ var util = require("util")
 function Unit() {
     Dummy.call(this);
     
-    this.id = 0;
-    
-    this.priority = 0;
-    this.balance = 0.0;
+    this.id           = 0;    
+    this.priority     = 0;
+    this.balance      = 0.0;
     this.distribution = "max";
-    this.network = null;
-    this.begin = null;
-    this.end   = null;
-
-    this.profiles = [];
+    this.network      = null;
+    this.begin        = null;
+    this.end          = null;
+    this.profiles     = [];
 }
 
 util.inherits(Unit, Dummy);
@@ -26,13 +24,16 @@ Unit.Create = function(params, callback) {
         return;
     }
 
-    unit.id         = parseInt(params.id);    
-    unit.prioprity  = parseInt(params.priority);
-    unit.balance    = parseFloat(params.balance) || 0.0;
+    unit.id = parseInt(params.id);    
+    unit.priority = parseInt(params.priority);
+    unit.balance = parseFloat(params.balance);
     unit.distribution = params.distribution;
     unit.network = params.network || null;
-    unit.begin = params.begin;
-    unit.end   = params.end;
+    
+    if (params.begin && params.end) {
+        unit.begin = new Date(params.begin);
+        unit.end = new Date(params.end)
+    }
 
     callback(null, unit);
 };
@@ -66,6 +67,18 @@ Unit._isValidParams = function(params) {
     return true;
 };
 
+Unit.prototype.getPriority = function() {
+    return this.priority;
+};
+
+Unit.prototype.getBalance = function() {
+    return this.balance;
+};
+
+Unit.prototype.distribution = function() {
+    return this.distribution;
+};
+
 Unit.prototype.setNetwork = function(network) {
     this.network = network;
 };
@@ -78,8 +91,20 @@ Unit.prototype.setBegin = function(begin) {
     this.begin = begin;
 };
 
+Unit.prototype.getBegin = function() {
+    return this.begin;
+};
+
 Unit.prototype.setEnd = function(end) {
     this.end = end;
+};
+
+Unit.prototype.getEnd = function() {
+    return this.end;
+};
+
+Unit.prototype.addProfile = function(profile) {
+    this.profiles.push(profile);
 };
 
 Unit.prototype.getProfiles = function() {
@@ -96,29 +121,18 @@ Unit.prototype.getProfiles = function() {
     return result;
 };
 
-Unit.prototype.addProfile = function(profile) {
-    this.profiles.push(profile);
-};
-
-Unit.prototype.removeProfile = function(profile) {
-    var result= [];
-    
-    for (var i=0, len=this.profiles.length; i<len; i++) {
-        if (this.profiles[i].id != profile.id) {
-            result.push(this.profiles[i])
-        }
-    }
-    
-    this.profiles = result;
-};
-
 Unit.prototype.verify = function(callback) {
     if (this.deleted) {
         callback(null, false);
         return;
-    } 
+    }
 
     var now = Dummy.now();
+    
+    if (this.balance == 0) {
+        callback(null, false);
+        return;
+    }
     
     if (this.begin > now) {
         callback(null, false);

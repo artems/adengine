@@ -1,8 +1,16 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+  
 function Unit() {
-    this.id = 0;
-    this.group = "";
-    this.format = null;
+    Dummy.call(this);
+    
+    this.id      = 0;
+    this.group   = "";
+    this.format  = null;
+    this.flights = [];
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -13,7 +21,8 @@ Unit.Create = function(params, callback) {
     }
 
     unit.id = parseInt(params.id);
-    unit.format = prarams.format || null;
+    unit.group = params.group;
+    unit.format = params.format || null;
 
     callback(null, unit);
 };
@@ -23,11 +32,15 @@ Unit._isValidParams = function(params) {
         return false;
     }
     
-    if (!params.group || params.group.constructor != String || params.group.length == 0) {
+    if (params.group == null || params.group == undefined || params.group.constructor != String) {
         return false;
     }
 
     return true;
+};
+
+Unit.prototype.getGroup = function() {
+    return this.group;
 };
 
 Unit.prototype.setFormat = function(format) {
@@ -36,6 +49,25 @@ Unit.prototype.setFormat = function(format) {
 
 Unit.prototype.getFormat = function() {
     return this.format;
+};
+
+Unit.prototype.addFlight = function(flight) {
+    this.flights.push(flight);
+};
+
+Unit.prototype.getFlights = function() {
+    var result = []
+      , len = this.flights.length;
+
+    for (var i=0; i<len; i++) {
+        if (!this.flights[i].deleted) {
+            result.push(this.flights[i]);
+        }
+    }
+
+    this.flights = result;
+
+    return result;
 };
 
 module.exports = Unit;

@@ -4,11 +4,10 @@ var util = require("util")
 function Unit() {
     Dummy.call(this);
 
-    this.id = 0;
-    this.flight = null;
-    
+    this.id      = 0;
+    this.flight  = null;
     this.banners = [];
-    this.targeting = {};    
+    this.target  = {};    
 }
 
 util.inherits(Unit, Dummy);
@@ -47,24 +46,26 @@ Unit.prototype.addBanner = function(banner) {
     this.banners.push(banner);
 };
 
-Unit.prototype.removeBanner = function(banner) {
-    var result= [];
-    
-    for (var i=0, len=this.banners.length; i<len; i++) {
-        if (this.banners[i].id != banner.id) {
-            result.push(this.banners[i])
+Unit.prototype.getBanners = function() {
+    var result = [], len = this.banners.length;
+
+    for (var i=0; i<len; i++) {
+        if (!this.banners[i].deleted) {
+            result.push(this.banners[i]);
         }
     }
-    
+
     this.banners = result;
+
+    return result;
 };
 
 Unit.prototype.setTarget = function(ruleset) {
-    this.targeting[ruleset.getTargetId()] = ruleset;
+    this.target[ruleset.getTargetId()] = ruleset;
 };
 
 Unit.prototype.getTarget = function(target_id) {
-    return this.targeting[target_id];
+    return this.target[target_id];
 }
 
 Unit.prototype.verify = function(callback) {
@@ -75,9 +76,9 @@ Unit.prototype.verify = function(callback) {
     
     var session_vars = {};
     
-    for (var i in this.targeting) {
-        if (this.targeting.hasOwnProperty(i)) {
-            if (!this.targeting[i].pass(session_vars)) {
+    for (var i in this.target) {
+        if (this.target.hasOwnProperty(i)) {
+            if (!this.target[i].pass(session_vars)) {
                 callback(null, false);
                 return;
             }
@@ -85,7 +86,6 @@ Unit.prototype.verify = function(callback) {
     }
     
     callback(null, true);
-    return;
 };
 
 module.exports = Unit;

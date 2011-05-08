@@ -1,10 +1,9 @@
 function Unit() {
-    this.id = 0;
-    this.site = null;
-    this.preg = null;
-    this.category = [];
-    
-    this.places = [];
+    this.id       = 0;
+    this.preg     = null;
+    this.site     = null;
+    this.category = [];    
+    this.places   = [];
 }
 
 Unit.Create = function(params, callback) {
@@ -15,9 +14,9 @@ Unit.Create = function(params, callback) {
         return;
     }
 
-    unit.id = parseInt(params.id);
+    unit.id = parseInt(params.id);    
+    unit.preg = params.preg;
     unit.site = params.site || null;
-    unit.preg = params.preg || /.*/;
     unit.category = params.category || [];
 
     callback(null, unit);
@@ -39,6 +38,10 @@ Unit._isValidParams = function(params) {
     return true;
 };
 
+Unit.prototype.getPreg = function() {
+    return this.preg;
+};
+
 Unit.prototype.getSite = function() {
     return this.site;
 };
@@ -53,6 +56,10 @@ Unit.prototype.getCategory = function(page) {
 
 Unit.prototype.addPlace = function(place) {
     this.places.push(place);
+};
+
+Unit.prototype.getPlaces = function() {
+    return this.places;
 };
 
 module.exports = Unit;

@@ -1,12 +1,20 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+  
 function Unit() {
-    this.id = 0;
-    this.url = "";
-    this.preg = null;
-    this.buyout = [];
+    Dummy.call(this);
     
-    this.pages = [];
-    this.plugs = [];
+    this.id     = 0;
+    this.url    = "";
+    this.preg   = null;
+    this.buyout = [];    
+    this.pages  = [];
+    this.plugs  = [];
+    
+    this.default_page = null;
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -40,20 +48,28 @@ Unit._isValidParams = function(params) {
     return true;
 };
 
+Unit.prototype.getUrl = function() {
+    return this.url;
+}
+
+Unit.prototype.getPreg = function() {
+    return this.preg;
+}
+
+Unit.prototype.getBuyout = function() {
+    return this.buyout;
+}
+
+Unit.prototype.setDefaultPage = function(page) {
+    this.default_page = page;
+}
+
+Unit.prototype.getDefaultPage = function() {
+    return this.default_page;
+}
+
 Unit.prototype.addPage = function(page) {
     this.pages.push(page);
-};
-
-Unit.prototype.removePage = function(page) {
-    var result = [];
-    
-    for (var i=0, len=this.pages.length; i<len; i++) {
-        if (this.pages[i].id != page.id) {
-            result.push(this.pages[i])
-        }
-    }
-    
-    this.pages = result;
 };
 
 Unit.prototype.addPlug = function(banner) {
@@ -63,7 +79,7 @@ Unit.prototype.addPlug = function(banner) {
         this.plugs[format_id] = [];
     }
     
-    this.plugs[format_id].push(plug);
+    this.plugs[format_id].push(banner);
 };
 
 Unit.prototype.getRandomPlug = function(format_id) {
@@ -72,8 +88,8 @@ Unit.prototype.getRandomPlug = function(format_id) {
     if (!plugs || plugs.length == 0) {
         return false;
     } else {
-        var length = plugs.length;
-        var index  = Math.random() * length;
+        var length = plugs.length
+          , index  = Math.random() * length;
         
         return plugs[index];
     }        

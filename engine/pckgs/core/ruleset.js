@@ -4,10 +4,9 @@ var util = require("util")
 function Unit() {
     Dummy.call(this);
     
-    this.id = 0;
-    this.target_id = null;
-    
-    this.rules = [];
+    this.id        = 0;
+    this.rules     = [];
+    this.target_id = null;        
 }
 
 util.inherits(Unit, Dummy);
@@ -69,12 +68,12 @@ Unit.prototype.pass = function(session_vars) {
     return true;
 }
 
-Unit.TARGET_CATEGORY  = 1;
 Unit.TARGET_DAYOFWEEK = 2;
-Unit.TARGET_GEOGRAPHY = 3;
-Unit.TARGET_IPADDRESS = 4;
-Unit.TARGET_USERAGENT = 5;
-Unit.TARGET_SITE      = 6;
+Unit.TARGET_GEOGRAPHY = 4;
+Unit.TARGET_IPADDRESS = 5;
+Unit.TARGET_USERAGENT = 6;
+Unit.TARGET_CATEGORY  = 7;
+Unit.TARGET_SITE      = 9;
 
 Unit.prototype._getProcessMethod = function() {    
     switch (this.target_id) {

@@ -1,11 +1,18 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+  
 function Unit() {
-    this.id     = 0;
-    this.size   = 0;
-    this.body   = null;
-    this.format = null;
-
-    this.params = {};
+    Dummy.call(this);
+    
+    this.id      = 0;
+    this.size    = 0;
+    this.body    = null;
+    this.format  = null;
+    this.is_plug = false;
+    this.params  = {};
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -15,11 +22,11 @@ Unit.Create = function(params, callback) {
         return;
     }
 
-    unit.id   = parseInt(params.id);
-    unit.size = parseInt(params.size);
-    unit.body = params.body;
-
-    unit.format = params.format || null;
+    unit.id      = parseInt(params.id);
+    unit.size    = parseInt(params.size);
+    unit.body    = params.body;
+    unit.is_plug = params.is_plug || false;
+    unit.format  = params.format || null;
 
     callback(null, unit);
 };
@@ -33,7 +40,7 @@ Unit._isValidParams = function(params) {
         return false;
     }
 
-    if (!params.body || params.body.constructor != String || params.body.length == 0) {
+    if (params.body == null && params.body == undefined || params.body.constructor != String) {
         return false;
     }
 
@@ -44,6 +51,14 @@ Unit.prototype.getCode = function() {
     return this.body;
 };
 
+Unit.prototype.getSize = function() {
+    return this.body;
+};
+
+Unit.prototype.isPlug = function() {
+    return this.is_plug;
+};
+
 Unit.prototype.setFormat = function(format) {
     this.format = format;
 }
@@ -52,10 +67,9 @@ Unit.prototype.getFormat = function() {
     return this.format;
 }
 
-Unit.prototype.setParam = function(key, type, name, default_, require) {
+Unit.prototype.setParam = function(key, type, default_, require) {
     this.params[key] = {
         'type'    : type
-      , 'name'    : name
       , 'default' : default_
       , 'require' : require
     };

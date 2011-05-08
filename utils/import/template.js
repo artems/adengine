@@ -31,7 +31,7 @@ module.exports = function(callback) {
                           , name: item.template_title
                           , size: item.template_size
                           , is_plug: (item.template_status == "plug") ? true : false
-                          , body: item.template_javascript
+                          , body: item.template_javascript || ""
                           , params: {}
                         }, group.add());
                     });

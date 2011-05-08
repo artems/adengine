@@ -1,7 +1,15 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+  
 function Unit() {
-    this.id = 0;
-    this.flights = [];
+    Dummy.call(this);
+    
+    this.id       = 0;
+    this.plug     = null;
+    this.networks = null;    
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -12,6 +20,7 @@ Unit.Create = function(params, callback) {
     }
 
     unit.id = parseInt(params.id);
+    unit.plug = params.plug || null;
 
     callback(null, unit);
 };
@@ -24,22 +33,24 @@ Unit._isValidParams = function(params) {
     return true;
 };
 
-Unit.prototype.addFlight = function(flight) {
-    this.flights.push(flight);
+Unit.prototype.addNetwork = function(network) {
+    this.networks.push(network);
 };
 
-Unit.prototype.getFlights = function() {
-    var result = [], len = this.flights.length;
+Unit.prototype.getNetworks = function() {
+    return this.networks;
+};
 
-    for (var i=0; i<len; i++) {
-        if (!this.flights[i].deleted) {
-            result.push(this.flights[i]);
-        }
-    }
+Unit.prototype.getNetwork = function() {
+    return this.network;
+};
 
-    this.flights = result;
+Unit.prototype.setPlug = function(plug) {
+    this.plug = plug;
+};
 
-    return result;
+Unit.prototype.getPlug = function() {
+    return this.plug;
 };
 
 module.exports = Unit;

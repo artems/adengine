@@ -1,8 +1,8 @@
 function Unit() {
-    this.id = 0;
-    this.page = null;
-    this.format = null;
-    this.network = [];
+    this.id        = 0;
+    this.page      = null;
+    this.format    = null;
+    this.networks  = [];
     this.code_type = '';
 }
 
@@ -17,7 +17,6 @@ Unit.Create = function(params, callback) {
     unit.id = parseInt(params.id);
     unit.page = params.page || null;
     unit.format = params.format || null;
-    unit.network = params.network || [];
     unit.code_type = params.code_type;
 
     callback(null, unit);
@@ -33,6 +32,18 @@ Unit._isValidParams = function(params) {
     }
 
     return true;
+};
+
+Unit.prototype.addNetwork = function(network) {
+    this.networks.push(network);
+};
+
+Unit.prototype.getNetworks = function() {
+    return this.networks;
+};
+
+Unit.prototype.getCodeType = function(format) {
+    return this.code_type;
 };
 
 Unit.prototype.setFormat = function(format) {
