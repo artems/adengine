@@ -1,4 +1,4 @@
-require.paths.unshift(__dirname + '/../pckgs');
+require.paths.unshift(__dirname + '/../modules');
 
 var config = require("./_config");
 
