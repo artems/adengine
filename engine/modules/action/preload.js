@@ -1,85 +1,61 @@
 var async = require("async")
-  , Template = require("core/template")
-  , Format = require("core/format")
-  , Network = require("core/network")
-  , Flight = require("core/flight")
-  ;
-
+  , Dummy = require("core/dummy")
+  , Create = require("./create");
+  
 function Unit(app) {
     this.app = app;
+    
+    var registry = {};
+    
+    registry.format   = {};    
+    registry.network  = {};
+    registry.template = {};
+    registry.flight   = {};
+    registry.creative = {};
+    registry.profile  = {};
+    registry.banner   = {};
+    registry.site     = {};    
+    registry.page     = {};
+    registry.place    = {};
+    
+    this.app.registry = registry;
 }
 
 Unit.prototype.execute = function(callback) {
-    async.parallel([
-        this.loadTemplates.bind(this)        
+    this.factory = new Create(this.app.registry);
+    
+    async.series([
+        this.loadFormats.bind(this)
+      , this.loadNetworks.bind(this)
+      , this.loadTemplates.bind(this)
       , function(callback) {
-            async.waterfall([
-                this.loadFormats.bind(this)
-              , this.loadNetworks.bind(this)
-              , this.loadActiveFlights.bind(this)
-              , this.loadActiveCreatives.bind(this)
-              //, this.loadActiveProfiles.bind(this)
-              //, this.loadActiveBanners.bind(this)
-              //, this.loadSitePlugs.bind(this)
-            ], callback)
-        }.bind(this)
-        /*
+          async.waterfall([
+              this.loadFlights.bind(this)
+            , this.loadCreatives.bind(this)
+            , this.loadProfiles.bind(this)
+            , this.loadBanners.bind(this)
+          ], callback)
+      }.bind(this)
       , function(callback) {
-            async.waterfall([
-                this.loadSites.bind(this)
-              , this.loadSitePages.bind(this)
-              , this.loadSitePlaces.bind(this)
-            ], callback)
-        }.bind(this)
-      , this.loadFormatPlugs.bind(this)
-        */
+          async.waterfall([
+              this.loadSites.bind(this)
+            , this.loadPlugs.bind(this)
+            , this.loadPages.bind(this)
+            , this.loadPlaces.bind(this)
+          ], callback);
+      }.bind(this)
     ], callback);
-
+    
     // TODO optimization
     // Проверить весь список и
     //  - если в сценарии нет баннеров, удалить сценарий из реестра
     //  - если во флайте нет сценариев, удалить флайт из реестра
 };
 
-Unit.prototype.loadTemplates = function(callback) {
-    var mongo = this.app.mongo
-      , registry = this.app.registry;
-
-    async.waterfall([
-        function(callback) {
-            mongo.collection("template", callback);
-        },
-
-        function(collection, callback) {
-            collection.find(callback);
-        },
-
-        function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(result, callback) {
-            var deferred = async.deferred(callback, result.length);
-            
-            registry.template = {};                        
-            
-            result.forEach(function(item) {
-                Template.Create(item, function(err, template) {
-                    if (!err) {
-                        registry.template[item.id] = template;
-                    }
-                    deferred(err);
-                });                
-            });
-            
-            deferred();
-        }
-    ], callback);
-};
-
 Unit.prototype.loadFormats = function(callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
+      , factory = this.factory
+      , item_id = [];
 
     async.waterfall([
         function(callback) {
@@ -91,31 +67,27 @@ Unit.prototype.loadFormats = function(callback) {
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(result, callback) {
-            var deferred = async.deferred(callback, result.length);
+            var group = async.group(callback);
             
-            registry.format = {};
-                       
-            result.forEach(function(item) {
-                Format.Create(item, function(err, format) {
-                    if (!err) {
-                        registry.format[item.id] = format;
-                    } 
-                    deferred(err);
-                });                
+            cursor.each(function(err, item) {                
+                if (!err && item != null) {
+                    item_id.push(item.id);
+                    
+                    factory.createFormat(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
             });
-            
-            deferred();
         }
-    ], callback);
-};
+    ], function(err) {
+        callback(err, item_id);
+    });
+}
 
 Unit.prototype.loadNetworks = function(callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
+      , factory = this.factory
+      , item_id = [];
 
     async.waterfall([
         function(callback) {
@@ -127,35 +99,59 @@ Unit.prototype.loadNetworks = function(callback) {
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                
+                if (!err && item != null) {
+                    item_id.push(item.id);
+                    
+                    factory.createNetwork(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
+            });
+        }
+    ], function(err) {
+        callback(err, item_id);
+    });
+}
+
+Unit.prototype.loadTemplates = function(callback) {
+    var mongo = this.app.mongo
+      , factory = this.factory
+      , item_id = [];
+
+    async.waterfall([
+        function(callback) {
+            mongo.collection("template", callback);
         },
 
-        function(result, callback) {
-            var deferred = async.deferred(callback, result.length);
+        function(collection, callback) {
+            collection.find(callback);
+        },
+
+        function(cursor, callback) {
+            var group = async.group(callback);
             
-            registry.network = {};
-            
-            result.forEach(function(item) {
-                Network.Create(item, function(err, network) {
-                    if (!err) {
-                        network.setFormat(registry.format[item.format_id]);
-                        
-                        registry.network[item.id] = network;
-                    } 
-                    deferred(err);
-                });                
+            cursor.each(function(err, item) {                
+                if (!err && item != null) {
+                    item_id.push(item.id);
+                    
+                    factory.createTemplate(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
             });
-            
-            deferred();
         }
-    ], callback);
-};
+    ], function(err) {
+        callback(err, item_id)
+    });
+}
 
-Unit.prototype.loadActiveFlights = function(callback) {
+Unit.prototype.loadFlights = function(callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
-
-    var flight_id = [];
+      , factory = this.factory
+      , flight_id = [];
 
     async.waterfall([
         function(callback) {
@@ -163,100 +159,73 @@ Unit.prototype.loadActiveFlights = function(callback) {
         },
 
         function(collection, callback) {
-            var now = new Date();
+            var now   = Dummy.now();
             var query = {
-                state: "active",
-                begin: {$lt: now},
-                end: {$gt: now}
+                state : "active",
+                begin : {$lt: now},
+                end   : {$gt: now}
             };
-            collection.find(query, null, {sort: ['prioprity', "ascending"]}, callback);
+            
+            collection.find(query, null, {sort: ['priority', "ascending"]}, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(flights, callback) {
-            var deferred = async.deferred(callback, flights.length);
+            var group = async.group(callback);
             
-            registry.flight = {};
-            
-            flights.forEach(function(item) {
-                Flight.Create(item, function(err, flight) {
-                    if (!err) {
-                        var network = registry.network[item.network_id];
-                                                
-                        flight.setNetwork(network);
-                        
-                        if (!item.is_plug) {
-                            network.addFlight(flight);
-                        }
-                        
-                        flight_id.push(item.id);
-                        
-                        registry.flight[item.id] = flight;
-                    }
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {
+                    flight_id.push(item.id);
                     
-                    deferred(err);
-                });                
+                    factory.createFlight(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
             });
-            
-            deferred();
         }
     ], function(err) {
         callback(err, flight_id);
     });
-};
+}
 
-Unit.prototype.loadActiveCreatives = function(flight_id, callback) {
+Unit.prototype.loadCreatives = function(flight_id, callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
-
+      , factory = this.factory;
+      
     async.waterfall([
         function(callback) {
             mongo.collection("creative", callback);
         },
 
         function(collection, callback) {
+            var now   = Dummy.now();
             var query = {
-                'flight_id' : {$in: flight_id}
+                flight_id : {$in: flight_id}
+              , state     : {$ne: 'deleted'}
             };
+            
             collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(creatives, callback) {
-            var deferred = async.deferred(callback, creatives.length);
-
-            registry.creative = {};          
-                       
-            creatives.forEach(function(item) {
-                Creative.Create(item, function(err, creative) {
-                    if (!err) {
-                        creative.setFlight(registry.flight[item.flight_id]);
-                        creative.setTemplate(registry.template[item.template_id]);
-                        
-                        registry.creative[item.id] = creative;
-                    } 
-                    deferred(err);
-                });                
-            });
+            var group = async.group(callback);
             
-            deferred();
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {                   
+                    factory.createCreative(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
+            });
         }
     ], function(err) {
         callback(err, flight_id);
     });
-};
-/*
-Unit.prototype.loadActiveProfiles = function(flight_id, callback) {
-    var mongo = this.app.mongo
-      , registry = this.app.registry;
+}
 
-    var profile_id = [];
+Unit.prototype.loadProfiles = function(flight_id, callback) {
+    var mongo = this.app.mongo
+      , factory = this.factory
+      , profile_id = [];
 
     async.waterfall([
         function(callback) {
@@ -265,47 +234,35 @@ Unit.prototype.loadActiveProfiles = function(flight_id, callback) {
 
         function(collection, callback) {
             var query = {
-                'flight_id' : {$in: flight_id}
-              , 'state': {$ne: 'deleted'}
+                flight_id : {$in: flight_id}
+              , state     : {$ne: 'deleted'}
             };
             
             collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(profiles, callback) {
-            var deferred = async.deferred(callback, profiles.length);
+            var group = async.group(callback);
             
-            registry.profile = {};
-
-            callback(null, profile_id);
-            
-            profiles.forEach(function(item) {
-                Profile.Create(item, function(err, profile) {
-                    if (!err) {
-                        profile.setFlight(registry.flight[item.flight_id]);
-                        
-                        profile_id.push(item.id);
-                        
-                        registry.profile[item.id] = profile;
-                    } 
-                    deferred(err);
-                });                
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    profile_id.push(item.id);
+                    
+                    factory.createProfile(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
             });
-            
-            deferred();
         }
     ], function(err) {
         callback(err, profile_id);
     });
-};
-/*
-Unit.prototype.loadActiveBanners = function(profile_id, callback) {
+}
+
+Unit.prototype.loadBanners = function(profile_id, callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;    
+      , factory = this.factory
+      , banner_id = [];
 
     async.waterfall([
         function(callback) {
@@ -313,67 +270,75 @@ Unit.prototype.loadActiveBanners = function(profile_id, callback) {
         },
 
         function(collection, callback) {
-            var now = new Date();
+            var now   = Dummy.now();
             var query = {
-                state: "active",
-                begin: {$lt: now},
-                end: {$gt: now},
-                profile_id: {$in: profile_id}
+                profile_id : {$in: profile_id}
+              , state      : "active"
+              , begin      : {$lt: now}
+              , end        : {$gt: now}              
             };
-            collection.find(query, null, {sort: ['prioprity', "ascending"]}, callback);
+            
+            collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(banners, callback) {            
-            registry.banner = {};
-
-            banners.forEach(function(item) {
-                registry.banner[item.id] = item;
-                registry.profile[item.profile_id].banners.push(item);
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    banner_id.push(item.id);
+                    
+                    factory.createBanner(item, group.add());
+                } else {
+                    group.finish(err);                    
+                }
             });
-
-            callback();
         }
-    ], callback);
-};
+    ], function(err) {
+        callback(err, banner_id);
+    });
+}
 
-Unit.prototype.loadFormatPlugs = function(callback) {
-     var mongo = this.app.mongo
-       , registry = this.app.registry;
+Unit.prototype.loadSites = function(callback) {
+    var mongo = this.app.mongo
+      , factory = this.factory
+      , site_id = [];
 
-     async.waterfall([
+    async.waterfall([
         function(callback) {
-            mongo.collection("template", callback);
+            mongo.collection("site", callback);
         },
 
         function(collection, callback) {
-            collection.find({'is_plug': true}, callback);
+            var query = {
+                state       : "active"
+              , is_approved : true            
+            };
+            
+            collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(result, callback) {
-            result.forEach(function(item) {
-                if (registry.format[item.format_id].plug) {
-                    var old_plug_id = registry.format[item.format_id].plug.id;
-                    console.log('more then one plug for format '+ item.format_id + ' ('+ old_plug_id +' and ' + item.id +')');
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    site_id.push(item.id);
+                    
+                    factory.createSite(item, group.add());
+                } else {
+                    group.finish(err);                    
                 }
-                
-                registry.format[item.format_id].plug = item;
             });
-            callback();
         }
-    ], callback);
-};
+    ], function(err) {
+        callback(err, site_id);
+    });
+}
 
-Unit.prototype.loadSitePlugs = function(callback) {
+Unit.prototype.loadPlugs = function(site_id, callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
+      , factory = this.factory;
 
     async.waterfall([
         function(callback) {
@@ -381,72 +346,34 @@ Unit.prototype.loadSitePlugs = function(callback) {
         },
 
         function(collection, callback) {
-            collection.find(callback);
+            var query = {
+                site_id : {$in: site_id}
+              , state   : {$ne: 'deleted'}
+            };
+            
+            collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(result, callback) {
-            registry.site_plug = {};
-            result.forEach(function(item) {
-                if (!registry.site_plug[item.format_id]) {
-                    registry.site_plug[item.format_id] = {};
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {                     
+                    factory.createSitePlug(item, group.add());
+                } else {
+                    group.finish(err);                    
                 }
-                
-                if (!registry.site_plug[item.format_id][item.site_id]) {
-                    registry.site_plug[item.format_id][item.site_id] = [];
-                }
-
-                var banner = registry.banner[item.banner_id];
-                registry.site_plug[item.format_id][item.site_id].push(banner);
             });
-            callback();
         }
-    ], callback);
-};
-
-Unit.prototype.loadSites = function(callback) {
-    var mongo = this.app.mongo
-      , registry = this.app.registry;
-
-    var site_id = [];
-
-    async.waterfall([
-        function(callback) {
-            mongo.collection("site", callback);
-        },
-
-        function(collection, callback) {            
-            collection.find({state: "active", is_approved: true}, callback);
-        },
-
-        function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(sites, callback) {
-            registry.site = {};
-
-            sites.forEach(function(item) {
-                registry.site[item.id] = item;
-                registry.site[item.id].default_page = null;
-                site_id.push(item.id);
-            });
-
-            callback();
-        }
-    ], function(err) {
+    ], function(err) {        
         callback(err, site_id);
     });
-};
+}
 
-Unit.prototype.loadSitePages = function(site_id, callback) {
+Unit.prototype.loadPages = function(site_id, callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
-
-    var page_id = [];
+      , factory = this.factory
+      , page_id = [];
 
     async.waterfall([
         function(callback) {
@@ -454,68 +381,67 @@ Unit.prototype.loadSitePages = function(site_id, callback) {
         },
 
         function(collection, callback) {
-            collection.find({site_id: {$in: site_id}}, callback);
+            var query = {
+                site_id : {$in: site_id}
+              , state   : {$ne: 'deleted'}
+            };
+            
+            collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(pages, callback) {
-            registry.site_page = {};
-
-            pages.forEach(function(item) {
-                if (item.name == "*") {
-                    registry.site[item.site_id].default_page = item;
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    page_id.push(item.id);
+                    
+                    factory.createPage(item, group.add());
+                } else {
+                    group.finish(err);                    
                 }
-
-                registry.site_page[item.id] = item;
-                registry.site_page[item.id].place = {};
-                page_id.push(item.id);
             });
-
-            callback();
         }
-    ], function(err) {
+    ], function(err) {        
         callback(err, page_id);
     });
-};
+}
 
-Unit.prototype.loadSitePlaces = function(page_id, callback) {
+Unit.prototype.loadPlaces = function(page_id, callback) {
     var mongo = this.app.mongo
-      , registry = this.app.registry;
+      , factory = this.factory
+      , place_id = [];
 
     async.waterfall([
         function(callback) {
-            mongo.collection("site_place", callback);
+            mongo.collection("site_page", callback);
         },
 
         function(collection, callback) {
-            collection.find({page_id: {$in: page_id}}, callback);
+            var query = {
+                page_id : {$in: page_id}
+              , state   : {$ne: 'deleted'}
+            };
+            
+            collection.find(query, callback);
         },
 
         function(cursor, callback) {
-            cursor.toArray(callback);
-        },
-
-        function(sites, callback) {
-            registry.site_place = {};
-
-            sites.forEach(function(item) {
-                if (!registry.site_page[item.page_id].place[item.format_id]) {
-                    registry.site_page[item.page_id].place[item.format_id] = [];
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    place_id.push(item.id);
+                    
+                    factory.createPlace(item, group.add());
+                } else {
+                    group.finish(err);                    
                 }
-
-                registry.site_place[item.id] = item;
-                registry.site_page[item.page_id].place[item.format_id].push(item);
             });
-
-            callback();
         }
-    ], function(err) {
-        callback(err, page_id);
+    ], function(err) {        
+        callback(err, place_id);
     });
-};
-*/
+}
 
 module.exports = Unit;

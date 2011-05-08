@@ -12,7 +12,7 @@ module.exports = function(callback) {
             },
 
             function(callback) {
-                app.mysql.query("SELECT * FROM k_site_plug", callback);
+                app.mysql.query("SELECT * FROM k_site_plug WHERE banner_id IS NOT NULL", callback);
             },
 
             function(results, fields, callback) {

@@ -43,13 +43,17 @@ Unit._isValidParams = function(params) {
     if (isNaN(parseInt(params.id)) || parseInt(params.id) <= 0) {
         return false;
     }
+    
     if (isNaN(parseInt(params.priority)) || parseInt(params.priority) < 0 || parseInt(params.priority) > 99) {
         return false;
     }
+    
     if (params.distribution != "max" && params.distribution != "flat") {
         return false;
     }
-    if (!params.url || params.url.constructor != String || params.url.length == 0) {
+    
+    // url = "" if it is site plug
+    if (params.url == null || params.url == undefined || params.url.constructor != String) {
         return false;
     }
 

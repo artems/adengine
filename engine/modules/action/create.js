@@ -13,18 +13,7 @@ var Template = require("core/template")
   , Place    = require("core/place")
   ;
 
-function Unit(registry) {        
-    registry.format   = {};    
-    registry.network  = {};
-    registry.template = {};
-    registry.flight   = {};
-    registry.creative = {};
-    registry.profile  = {};
-    registry.banner   = {};
-    registry.site     = {};    
-    registry.page     = {};
-    registry.place    = {};
-    
+function Unit(registry) {  
     this.registry = registry;
 }
 
@@ -34,7 +23,7 @@ Unit.prototype.getObject = function(type, id) {
     if (object) {
         return object;
     } else {
-        console.warn("%s#%d not found in registry", type, id);
+        console.warn("%s#%d is not found in registry", type, id);
         
         return null;
     }
@@ -87,7 +76,7 @@ Unit.prototype.createTemplate = function(item, callback) {
                 }
             }
             for (var i in object.params) {
-                if (this.params.hasOwnProperty(i)) {
+                if (object.params.hasOwnProperty(i)) {
                     var param = object.params[i];
                     object.setParam(i, param.type, param['default'], param.require);
                 }
@@ -136,7 +125,7 @@ Unit.prototype.createCreative = function(item, callback) {
             }
             
             for (var i in object.params) {
-                if (this.params.hasOwnProperty(i)) {
+                if (object.params.hasOwnProperty(i)) {
                     object.setParam(i, object.params[i]);
                 }
             }
@@ -179,9 +168,11 @@ Unit.prototype.createBanner = function(item, callback) {
                 object.setProfile(profile);
             }
             
-            var creative = self.getObject('creative', item.creative_id);
-            if (creative) {
-                object.setCreative(creative);
+            if (item.creative_id) { // banner in zeronet
+                var creative = self.getObject('creative', item.creative_id);
+                if (creative) {
+                    object.setCreative(creative);
+                }
             }
                         
             registry.banner[item.id] = object;
@@ -244,7 +235,7 @@ Unit.prototype.createPlace = function(item, callback) {
             }
             
             for (var i in object.network) {
-                if (this.network.hasOwnProperty(i)) {
+                if (object.network.hasOwnProperty(i)) {
                     var network = this.getObject('network', this.network[i]);
                     if (network) {
                         object.addNetwork(network);
@@ -274,7 +265,6 @@ Unit.prototype.createTargeting = function(item, callback) {
     });
 };
 
-
 Unit.prototype.createSitePlug = function(item, callback) {    
     var site   = this.getObject('site', item.site_id);
     var banner = this.getObject('banner', item.banner_id);
@@ -286,3 +276,4 @@ Unit.prototype.createSitePlug = function(item, callback) {
     callback();
 };
 
+module.exports = Unit;

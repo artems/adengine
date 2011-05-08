@@ -1,16 +1,18 @@
-var boot = require("./_boot")
-  , preload = require("action/preload");
+var Boot = require("./_boot")
+  , Preload = require("action/preload");
   
-  
-boot.run(function(err, app) {
-    p = new preload(app);
+  Boot.run(function(err, app) {
+    var action = new Preload(app);
+    
+    console.time('preload');
 
-    p.execute(function(err) {
+    action.execute(function(err) {
         if (err) {
             console.log(err.message);
         }
-        console.log("done");
-        boot.stop();
+        
+        console.timeEnd('preload');
+        Boot.stop();
     })    
 })  
 

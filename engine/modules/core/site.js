@@ -73,7 +73,7 @@ Unit.prototype.addPage = function(page) {
 };
 
 Unit.prototype.addPlug = function(banner) {
-    var format_id = banner.getProfile().getFlight().getFormat().id;
+    var format_id = banner.getProfile().getFlight().getNetwork().getFormat().id;
     
     if (!this.plugs[format_id]) {
         this.plugs[format_id] = [];

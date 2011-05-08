@@ -27,7 +27,7 @@ Unit._isValidParams = function(params) {
         return false;
     }
     
-    if (!params.preg || params.preg.constructor != RegExp) {
+    if (!params.preg || params.preg.constructor != Array) {
         return false;
     }
     

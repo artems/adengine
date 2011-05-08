@@ -32,7 +32,7 @@ module.exports = function(callback) {
                             id: item.site_id,
                             account_id: item.account_id,
                             url: item.site_url,
-                            preg: item.site_preg,
+                            preg: new RegExp(item.site_preg == "*" ? ".*" : item.site_preg),
                             name: item.site_name,
                             state: state,
                             is_approved: approved,

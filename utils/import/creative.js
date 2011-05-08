@@ -35,13 +35,14 @@ module.exports = function(callback) {
 
                             function(results, fields, callback) {
                                 var group = async.group(callback);
+                                
                                 results.forEach(function(item) {
                                     creative.insert({
                                         id: item.creative_id,
                                         flight_id: item.flight_id,
                                         template_id: item.template_id,
                                         name: item.creative_title,
-                                        uid: item.creative_uid,
+                                        uid: item.creative_uid || "",
                                         state: item.creative_status,
                                         params: {}
                                     }, group.add());

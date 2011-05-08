@@ -97,7 +97,7 @@ async.parallel = function(functions, finish) {
     }
 };
 
-async.deferred = function(callback, count) {
+async.defer = function(callback, count) {
     var err = null;
     count++;
     
@@ -142,7 +142,11 @@ AsyncGroup.prototype.add = function(name) {
     }
 };
 
-AsyncGroup.prototype.finish = function() {
+AsyncGroup.prototype.finish = function(err) {
+    if (err instanceof Error && !this.err) {
+        this.err = err;
+    }
+
     this.call();
 };
 

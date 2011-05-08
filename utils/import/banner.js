@@ -41,7 +41,7 @@ module.exports = function(callback) {
                                         profile_id: item.profile_id,
                                         creative_id: item.creative_id,
                                         name: item.banner_title,
-                                        url: item.banner_url,
+                                        url: item.banner_url || "",
                                         priority: item.banner_priority,
                                         distribution: item.banner_distribution,
                                         begin: item.banner_dstart || new Date(1970, 1, 1),

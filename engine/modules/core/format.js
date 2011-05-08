@@ -6,7 +6,7 @@ function Unit() {
     
     this.id       = 0;
     this.plug     = null;
-    this.networks = null;    
+    this.networks = [];    
 }
 
 util.inherits(Unit, Dummy);
