@@ -96,8 +96,12 @@ Unit.prototype.createFlight = function(item, callback) {
     Flight.Create(item, function(err, object) {
         if (!err) {
             var network = self.getObject('network', item.network_id);
-            if (network) {                
-                network.addFlight(object);
+            if (network) {
+                var format = network.getFormat();
+                if (format) {
+                    format.addFlight(object);
+                }
+                network.addFlight(object);                
                 object.setNetwork(network);
             }
             
@@ -223,15 +227,15 @@ Unit.prototype.createPlace = function(item, callback) {
     
     Place.Create(item, function(err, object) {
         if (!err) {
+            var format = self.getObject('format', item.format_id);
+            if (format) {
+                object.setFormat(format);
+            }
+
             var page = self.getObject('page', item.page_id);
             if (page) {
                 page.addPlace(object);
                 object.setPage(page);
-            }
-            
-            var format = self.getObject('format', item.format_id);
-            if (format) {
-                object.setFormat(format);
             }
             
             for (var i in object.network) {

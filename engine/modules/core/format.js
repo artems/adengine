@@ -6,7 +6,8 @@ function Unit() {
     
     this.id       = 0;
     this.plug     = null;
-    this.networks = [];    
+    this.networks = [];
+    this.flights  = [];
 }
 
 util.inherits(Unit, Dummy);
@@ -51,6 +52,22 @@ Unit.prototype.setPlug = function(plug) {
 
 Unit.prototype.getPlug = function() {
     return this.plug;
+};
+
+Unit.prototype.addFlight = function(flight) {
+    this.flights.push(flight);
+};
+
+Unit.prototype.getFlights = function() {
+    var result = [];
+
+    for (var i=0, len = this.flights.length; i<len; i++) {
+        if (!this.flights[i].deleted) {
+            result.push(this.flights[i]);
+        }
+    }
+
+    return result;
 };
 
 module.exports = Unit;

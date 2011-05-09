@@ -3,7 +3,7 @@ function Unit() {
     this.preg     = null;
     this.site     = null;
     this.category = [];    
-    this.places   = [];
+    this.places   = {};
 }
 
 Unit.Create = function(params, callback) {
@@ -55,11 +55,22 @@ Unit.prototype.getCategory = function(page) {
 };
 
 Unit.prototype.addPlace = function(place) {
-    this.places.push(place);
+    var place_format_id = place.getFormat().id;
+    if (!this.places[place_format_id]) {
+        this.places[place_format_id] = [];
+    }
+    
+    this.places[place_format_id].push(place);
 };
 
-Unit.prototype.getPlaces = function() {
-    return this.places;
+Unit.prototype.getPlaceByFormatId = function(format_id) {
+    var places_on_page = page.getPlacesByFormatId(format_id);
+
+    return places_on_page[0];
+}
+
+Unit.prototype.getPlacesByFormatId = function(format_id) {
+    return this.places[format_id] || [];
 };
 
 module.exports = Unit;

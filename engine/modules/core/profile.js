@@ -55,8 +55,6 @@ Unit.prototype.getBanners = function() {
         }
     }
 
-    this.banners = result;
-
     return result;
 };
 
@@ -68,12 +66,7 @@ Unit.prototype.getTarget = function(target_id) {
     return this.target[target_id];
 }
 
-Unit.prototype.verify = function(callback) {
-    if (this.deleted) {
-        callback(null, false);
-        return;
-    }
-    
+Unit.prototype.canRotate = function(callback) {
     var session_vars = {};
     
     for (var i in this.target) {
@@ -85,7 +78,7 @@ Unit.prototype.verify = function(callback) {
         }
     }
     
-    callback(null, true);
+    Dummy.prototype.canRotate.call(this, callback);
 };
 
 module.exports = Unit;

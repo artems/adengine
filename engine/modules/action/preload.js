@@ -1,6 +1,7 @@
-var async = require("async")
-  , Dummy = require("core/dummy")
-  , Create = require("./create");
+var async   = require("async")
+  , Create  = require("./create")
+  , Dummy   = require("core/dummy")
+  , Ruleset = require("core/ruleset");
   
 function Unit(app) {
     this.app = app;
@@ -17,6 +18,7 @@ function Unit(app) {
     registry.site     = {};    
     registry.page     = {};
     registry.place    = {};
+    registry.category = {};
     
     this.app.registry = registry;
 }
@@ -43,6 +45,11 @@ Unit.prototype.execute = function(callback) {
             , this.loadPages.bind(this)
             , this.loadPlaces.bind(this)
           ], callback);
+      }.bind(this)
+      , this.loadCategory.bind(this)
+      , function(callback) {
+          Ruleset.setCategoryMap(this.app.registry.category);
+          callback();
       }.bind(this)
     ], callback);
     
@@ -168,7 +175,7 @@ Unit.prototype.loadFlights = function(callback) {
             
             collection.find(query, null, {sort: ['priority', "ascending"]}, callback);
         },
-
+        
         function(cursor, callback) {
             var group = async.group(callback);
             
@@ -414,7 +421,7 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
 
     async.waterfall([
         function(callback) {
-            mongo.collection("site_page", callback);
+            mongo.collection("site_place", callback);
         },
 
         function(collection, callback) {
@@ -441,6 +448,38 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
         }
     ], function(err) {        
         callback(err, place_id);
+    });
+}
+
+Unit.prototype.loadCategory = function(callback) {
+    var mongo = this.app.mongo
+      , registry = this.app.registry
+      , category_id = [];
+      
+    async.waterfall([
+        function(callback) {
+            mongo.collection("category", callback);
+        },
+
+        function(collection, callback) {           
+            collection.find(callback);
+        },
+
+        function(cursor, callback) {
+            var group = async.group(callback);
+            
+            cursor.each(function(err, item) {                                
+                if (!err && item != null) {  
+                    category_id.push(item.id);
+                    
+                    registry.category[item.id] = item;
+                } else {
+                    group.finish(err);                    
+                }
+            });
+        }
+    ], function(err) {
+        callback(err, category_id);
     });
 }
 

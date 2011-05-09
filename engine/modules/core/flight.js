@@ -54,6 +54,14 @@ Unit._isValidParams = function(params) {
     if (params.distribution != "max" && params.distribution != "flat") {
         return false;
     }
+
+    if (params.begin && !params.end) {
+        return false;
+    }
+
+    if (!params.begin && params.end) {
+        return false;
+    }
    
     if (params.begin && params.end) {
         var begin = new Date(params.begin)
@@ -71,12 +79,24 @@ Unit.prototype.getPriority = function() {
     return this.priority;
 };
 
+Unit.prototype.setPriority = function(priority) {
+    this.priority = priority;
+};
+
 Unit.prototype.getBalance = function() {
     return this.balance;
 };
 
-Unit.prototype.distribution = function() {
+Unit.prototype.setBalance = function(balance) {
+    this.balance = balance;
+};
+
+Unit.prototype.getDistribution = function() {
     return this.distribution;
+};
+
+Unit.prototype.setDistribution = function(distribution) {
+    this.distribution = distribution;
 };
 
 Unit.prototype.setNetwork = function(network) {
@@ -116,34 +136,23 @@ Unit.prototype.getProfiles = function() {
         }
     }
 
-    this.profiles = result;
-
     return result;
 };
 
-Unit.prototype.verify = function(callback) {
-    if (this.deleted) {
+Unit.prototype.canRotate = function(callback) {
+    var now = Dummy.now();
+    
+    if (this.balance < 0) {
         callback(null, false);
         return;
     }
 
-    var now = Dummy.now();
-    
-    if (this.balance == 0) {
+    if (this.end && this.end < now) {
         callback(null, false);
         return;
     }
     
-    if (this.begin > now) {
-        callback(null, false);
-        return;
-    }
-    if (this.end < now) {
-        callback(null, false);
-        return;
-    }
-    
-    callback(null, true);
+    Dummy.prototype.canRotate.call(this, callback);
 };
 
 module.exports = Unit;

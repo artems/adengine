@@ -14,7 +14,11 @@ var boot = {
         if (app !== null) {
             callback(null, app);
         } else {
-            var mongo = new MongoDB(config.mongo.name, new MongoServer(config.mongo.host, config.mongo.port));
+            var mongo = new MongoDB(
+                config.mongo.name
+              , new MongoServer(config.mongo.host, config.mongo.port)
+              // , {native_parser:true}
+            );
             
             var client = new MySQLClient();
             client.user     = config.mysql.user;

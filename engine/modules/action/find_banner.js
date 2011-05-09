@@ -8,10 +8,11 @@ function Unit() {
     this.banner_pool  = [];
 }
 
-Unit.prototype.execute = function(format, callback) {
+Unit.prototype.execute = function(place, callback) {
     var self = this;
 
-    this.flight_pool = format.getFlights();
+    this.place = place;
+    this.flight_pool = place.getFormat().getFlights();
 
     // TODO remove it
     this.flight_pool.sort(function(a, b) {
@@ -33,7 +34,7 @@ Unit.prototype._selectFlight = function(callback) {
     if (!this.flight) {
         callback(null, false);
     } else {        
-        this.flight.verify(function(err, result) {
+        this.flight.canRotate(function(err, result) {
             if (err) {
                 callback(err);
             }
@@ -45,7 +46,7 @@ Unit.prototype._selectFlight = function(callback) {
                 // TODO try to use process.nextTick
                 this._selectFlight(callback);
             }         
-        });
+        }.bind(this));
     }
 };
 
@@ -55,7 +56,7 @@ Unit.prototype._selectProfile = function(callback) {
     if (!this.profile) {
         this._selectFlight(callback);
     } else {
-        this.profile.verify(function(err, result) {
+        this.profile.canRotate(function(err, result) {
             if (err) {
                 callback(err);
             }
@@ -67,7 +68,7 @@ Unit.prototype._selectProfile = function(callback) {
                 // TODO try to use process.nextTick
                 this._selectProfile(callback);
             } 
-        });
+        }.bind(this));
     }
 };
 
@@ -88,7 +89,7 @@ Unit.prototype._selectBanner = function(callback) {
                 // TODO try to use process.nextTick
                 this._selectBanner(callback);
             } 
-        });
+        }.bind(this));
     }
 };
 
