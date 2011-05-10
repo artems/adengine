@@ -1,0 +1,9 @@
+{"id" : 1, "format_id" : 1, "name" : "Plug for ZeroPixel", "size" : 1, "is_plug" : true, "body" : "", "params" : {}}
+{"id" : 2, "format_id" : 2, "name" : "Plug for PopUnder", "size" : 1, "is_plug" : true, "body" : "", "params" : {}}
+{"id" : 3, "format_id" : 2, "name" : "Default PopUnder", "size" : 1, "is_plug" : false, "body" : "", "params" : {}}
+{"id" : 4, "format_id" : 3, "name" : "Plug for RichMedia", "size" : 1, "is_plug" : true, "body" : "", "params" : {}}
+{"id" : 5, "format_id" : 3, "name" : "Default RichMedia", "size" : 1, "is_plug" : false, "body" : "", "params" : {}}
+{"id" : 6, "format_id" : 4, "name" : "Plug for 240x400", "size" : 1, "is_plug" : true, "body" : "", "params" : {}}
+{"id" : 7, "format_id" : 4, "name" : "Default 240x400", "size" : 1, "is_plug" : false, "body" : "", "params" : {}}
+{"id" : 8, "format_id" : 5, "name" : "Plug for 728x90", "size" : 1, "is_plug" : true, "body" : "", "params" : {}}
+{"id" : 9, "format_id" : 5, "name" : "Default 728x90", "size" : 1, "is_plug" : false, "body" : "", "params" : {}}

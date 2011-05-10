@@ -17,7 +17,7 @@ module.exports = function(callback) {
 
             function(coll, callback) {
                 coll.insertAll([
-                    {id: 1, account_id: 1, url: "ya.ru", preg: /.ya\.ru*/, name: "Модная женская одежда", state: "active", is_approved: true, buyout: ["cpm", "cpc"]}                  
+                    {id: 1, account_id: 1, url: "adengine.dev", preg: /.ya\.ru*/, name: "Модная женская одежда", state: "active", is_approved: true, buyout: ["cpm", "cpc"]}
                 ], callback);
             }
         ], callback)

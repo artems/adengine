@@ -1,0 +1,5 @@
+{"id" : 1, "name" : "ZeroPixel", "wdith": null, "height" : null, "delay" : 0}
+{"id" : 2, "name" : "PopUnder", "wdith": null, "height" : null, "delay" : 60}
+{"id" : 3, "name" : "RichMedia", "wdith": null, "height" : null, "delay" : 60}
+{"id" : 4, "name" : "240x400", "wdith": 240, "height" : 480, "delay" : 0}
+{"id" : 5, "name" : "728x90", "wdith": 728, "height" : 90, "delay" : 0}
