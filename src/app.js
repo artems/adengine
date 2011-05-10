@@ -9,7 +9,7 @@ var _app   = null;
 var server = connect(
     connect.bodyParser()
   , connect.cookieParser()
-  , connect.static(__dirname + "/public")
+  , connect.static(__dirname + "/../public")
   , connect.router(function(router) {
         router.get('/', function(req, res) {
             res.end("/");
