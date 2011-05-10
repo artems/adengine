@@ -1,4 +1,4 @@
-var Boot = require("./_boot")
+var Boot    = require("./_boot")
   , Preload = require("action/preload");
 
 Boot.run(function(err, app) {
@@ -14,6 +14,6 @@ Boot.run(function(err, app) {
         console.timeEnd('preload');
         Boot.stop();
     })    
-})  
+});
 
 

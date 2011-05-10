@@ -7,8 +7,8 @@ module.exports = {
 
     mysql : {
         name : "kavanga_main",
-        host : "localhost",
-        user : "root",
-        pass : ""
+        host : "devel.local",
+        user : "artem",
+        pass : "hrundel"
     }
 };

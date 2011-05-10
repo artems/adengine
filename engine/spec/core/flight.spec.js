@@ -4,7 +4,7 @@ var init = require("../_init")
 describe('Flight', function() {
     describe('constructor', function() {
         function getRequiredParams() {
-            return {id: 1, priority: 5, balance: 1.0, distribution: 'flat'};
+            return {id: 1, priority: 5, balance: 1.0, distribution: 'flat', is_plug: false};
         }
 
         function getRequiredParamsWithout(key) {
@@ -60,12 +60,6 @@ describe('Flight', function() {
 
         it('should вернуть исключение, если отсутсвует balance', function() {
             Flight.Create(getRequiredParamsWithout('balance'), function(err, flight) {
-                expect(err).toBeTruthy();
-            });
-        });
-
-        it('should вернуть исключение, если отсутсвует distribution', function() {
-            Flight.Create(getRequiredParamsWithout('distribution'), function(err, flight) {
                 expect(err).toBeTruthy();
             });
         });
@@ -175,7 +169,7 @@ describe('Flight', function() {
     });
 
     function getFlight(callback) {
-        var params = {id: 1, priority: 5, balance: 1.0, distribution: 'flat'};
+        var params = {id: 1, priority: 5, balance: 1.0, distribution: 'flat', is_plug: false};
 
         Flight.Create(params, callback);
     }
@@ -202,6 +196,14 @@ describe('Flight', function() {
     });
 
     describe('canRotate', function() {
+        it('should должен откручаваться по умолчанию', function() {
+            getFlight(function(err, flight) {
+                flight.canRotate(function(err, result) {
+                    expect(result).toBeTruthy();
+                });
+            });
+        });
+
         it('should не должен откручаваться, если balance меньше 0', function() {
             getFlight(function(err, flight) {
                 flight.setBalance(-0.1);

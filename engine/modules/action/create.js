@@ -18,7 +18,7 @@ function Unit(registry) {
 }
 
 Unit.prototype.getObject = function(type, id) {
-    var object = this.registry[type][id]
+    var object = this.registry[type][id];
     
     if (object) {
         return object;
@@ -52,8 +52,7 @@ Unit.prototype.createNetwork = function(item, callback) {
                 format.addNetwork(object);
                 object.setFormat(format);
             }
-            
-            
+                        
             registry.network[item.id] = object;
         } 
         
@@ -75,9 +74,9 @@ Unit.prototype.createTemplate = function(item, callback) {
                     format.setPlug(object);
                 }
             }
-            for (var i in object.params) {
-                if (object.params.hasOwnProperty(i)) {
-                    var param = object.params[i];
+            for (var i in item.params) {
+                if (item.params.hasOwnProperty(i)) {
+                    var param = item.params[i];
                     object.setParam(i, param.type, param['default'], param.require);
                 }
             }
@@ -98,15 +97,16 @@ Unit.prototype.createFlight = function(item, callback) {
             var network = self.getObject('network', item.network_id);
             if (network) {
                 var format = network.getFormat();
-                if (format) {
+                if (format && !object.isPlug()) {
                     format.addFlight(object);
+                    network.addFlight(object);
                 }
-                network.addFlight(object);                
+                
                 object.setNetwork(network);
             }
-            
+
             registry.flight[item.id] = object;
-        } 
+        }
         
         callback(err);
     }); 
@@ -128,9 +128,9 @@ Unit.prototype.createCreative = function(item, callback) {
                 object.setTemplate(template);
             }
             
-            for (var i in object.params) {
-                if (object.params.hasOwnProperty(i)) {
-                    object.setParam(i, object.params[i]);
+            for (var i in item.params) {
+                if (item.params.hasOwnProperty(i)) {
+                    object.setParam(i, item.params[i]);
                 }
             }
             
@@ -171,7 +171,7 @@ Unit.prototype.createBanner = function(item, callback) {
                 profile.addBanner(object);
                 object.setProfile(profile);
             }
-            
+
             if (item.creative_id) { // banner in zeronet
                 var creative = self.getObject('creative', item.creative_id);
                 if (creative) {
@@ -205,11 +205,12 @@ Unit.prototype.createPage = function(item, callback) {
     Page.Create(item, function(err, object) {
         if (!err) {
             var site = self.getObject('site', item.site_id);
+
             if (site) {
                 site.addPage(object);
                 object.setSite(site);
-                
-                if (object.name == "*") {
+
+                if (item.name == "*") {
                     site.setDefaultPage(object);
                 }
             }
@@ -238,9 +239,9 @@ Unit.prototype.createPlace = function(item, callback) {
                 object.setPage(page);
             }
             
-            for (var i in object.network) {
-                if (object.network.hasOwnProperty(i)) {
-                    var network = this.getObject('network', this.network[i]);
+            for (var i in item.network) {
+                if (item.network.hasOwnProperty(i)) {
+                    var network = this.getObject('network', item.network[i]);
                     if (network) {
                         object.addNetwork(network);
                     }
@@ -269,7 +270,7 @@ Unit.prototype.createTargeting = function(item, callback) {
     });
 };
 
-Unit.prototype.createSitePlug = function(item, callback) {    
+Unit.prototype.createSitePlug = function(item, callback) {
     var site   = this.getObject('site', item.site_id);
     var banner = this.getObject('banner', item.banner_id);
     

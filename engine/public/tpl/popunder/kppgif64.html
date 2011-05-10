@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>:::...</title>
+  <script language="JavaScript" src="http://b.kavanga.ru/tpl/common/webtoolkit.base64.js"></script>
+</head>
+<body leftmargin="0" topmargin="0" marginheight="0" marginwidth="0">
+<script language="JavaScript" type="text/javascript"><!--
+function callZP(){
+    for(var i=4; i<6; ++i) { v = Base64.decode(a[i]); if (v.toUpperCase().indexOf('HTTP:') == 0) (new Image).src=v;} // call all zeropixels
+}
+function kClick(){
+    if (window.open(Base64.decode(a[1]))) {self.close(); return false;}
+    else return true;
+}
+var a=window.location.search.substring(1).split('&');
+var khost = Base64.decode(a[6]);
+var kbrand = parseInt(a[7]);
+var str = '';
+str += '<table border=0 height=100% width=100% cellspacing="0" cellpadding="0" valign="top" align="left"><tr>';
+str += '<td valign="top" align="left" height="'+a[3]+'" width="'+a[2]+'">';
+str += '<a href="' + Base64.decode(a[1]) + '" onClick="kClick()" target="_blank"><img src="' + Base64.decode(a[0]) + '" border="0" height="' + a[3] + '" width="' + a[2] + '"></a>';
+if (kbrand){
+str += '</td></tr><tr style="margin: 0; padding: 0; border:none"><td style="margin: 0; padding: 0; border:none">';
+str += '<div style="height:17px; background:url(http://'+ khost +'/tpl/240x400f/bg.gif) repeat-x;"><a style="display:block; height:17px; background:url(http://'+ khost +'/tpl/240x400f/logo.jpg) no-repeat;" href="http://kavanga.ru/a/adv_advantages?f=n" target="_blank"></a></div>';
+}
+str += '</td></tr>';
+str += '</table>';
+document.write(str);
+setTimeout('self.blur(); callZP();', 1000);
+//-->
+</script>
+</body>
+</html>

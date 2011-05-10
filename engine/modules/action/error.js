@@ -56,12 +56,7 @@ Unit.prototype.execute = function(err, callback) {
             this._returnNoContent(callback);
             break;
         case "ENG-0002" : // Не удалось определить место
-            if (this.req.session.place.format_id > 0 && this.req.session.site_id > 0) {
-                // TODO показать заглушку сайта
-                this._returnNoContent(callback);
-            } else {
-                this._returnNoContent(callback);
-            }
+            this._returnNoContent(callback);
             break;
         case "ENG-0003" : // Пользователь без cookie, установить
             this._setCookieAndRefresh(callback);

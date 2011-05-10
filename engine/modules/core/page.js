@@ -64,7 +64,7 @@ Unit.prototype.addPlace = function(place) {
 };
 
 Unit.prototype.getPlaceByFormatId = function(format_id) {
-    var places_on_page = page.getPlacesByFormatId(format_id);
+    var places_on_page = this.getPlacesByFormatId(format_id);
 
     return places_on_page[0];
 }

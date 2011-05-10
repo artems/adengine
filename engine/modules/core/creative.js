@@ -33,6 +33,7 @@ Unit._isValidParams = function(params) {
     if (isNaN(parseInt(params.id)) || parseInt(params.id) <= 0) {
         return false;
     }
+    
     if (params.uid == null || params.uid == undefined || params.uid.constructor != String) {
         return false;
     }

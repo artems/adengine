@@ -1,4 +1,4 @@
-var init = require("./_init")
+var init = require("../_init")
   , Ruleset = require("core/ruleset");
 
 describe('ruleset', function() {

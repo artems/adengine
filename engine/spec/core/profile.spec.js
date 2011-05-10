@@ -60,8 +60,8 @@ describe('profile', function() {
         })
     });
 
-    describe('canRotate', function() {        
-        it('should должен откручаваться, если нет таргетингов', function() {
+    describe('canRotate', function() {
+        it('should должен откручаваться по умолчанию', function() {
             getProfile(function(err, profile) {
                 profile.canRotate(function(err, result) {
                     expect(result).toBeTruthy();

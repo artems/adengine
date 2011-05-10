@@ -68,17 +68,24 @@ Unit.prototype.getTarget = function(target_id) {
 
 Unit.prototype.canRotate = function(callback) {
     var session_vars = {};
-    
-    for (var i in this.target) {
-        if (this.target.hasOwnProperty(i)) {
-            if (!this.target[i].pass(session_vars)) {
-                callback(null, false);
-                return;
+
+    Dummy.prototype.canRotate.call(this, function(err, result) {
+        if (err || !result) {
+            callback(err, result);
+            return;
+        }
+
+        for (var i in this.target) {
+            if (this.target.hasOwnProperty(i)) {
+                if (!this.target[i].pass(session_vars)) {
+                    callback(null, false);
+                    return;
+                }
             }
         }
-    }
-    
-    Dummy.prototype.canRotate.call(this, callback);
+
+        callback(null, true);
+    }.bind(this));
 };
 
 module.exports = Unit;

@@ -8,6 +8,7 @@ function Unit() {
     this.priority     = 0;
     this.balance      = 0.0;
     this.distribution = "max";
+    this.is_plug      = false;
     this.network      = null;
     this.begin        = null;
     this.end          = null;
@@ -28,6 +29,7 @@ Unit.Create = function(params, callback) {
     unit.priority = parseInt(params.priority);
     unit.balance = parseFloat(params.balance);
     unit.distribution = params.distribution;
+    unit.is_plug = params.is_plug;
     unit.network = params.network || null;
     
     if (params.begin && params.end) {
@@ -43,10 +45,15 @@ Unit._isValidParams = function(params) {
         return false;
     }
 
+    // skip checks for plugs
+    if (params.is_plug) {
+        return true;
+    }
+
     if (isNaN(parseInt(params.priority)) || parseInt(params.priority) < 0 || parseInt(params.priority) > 99) {
         return false;
     }
-    
+
     if (isNaN(parseFloat(params.balance)) || parseFloat(params.balance) < 0) {
         return false;
     }
@@ -119,6 +126,10 @@ Unit.prototype.setEnd = function(end) {
     this.end = end;
 };
 
+Unit.prototype.isPlug = function() {
+    return this.is_plug;
+};
+
 Unit.prototype.getEnd = function() {
     return this.end;
 };
@@ -140,19 +151,26 @@ Unit.prototype.getProfiles = function() {
 };
 
 Unit.prototype.canRotate = function(callback) {
-    var now = Dummy.now();
-    
-    if (this.balance < 0) {
-        callback(null, false);
-        return;
-    }
+    Dummy.prototype.canRotate.call(this, function(err, result) {
+        if (err || !result) {
+            callback(err, result);
+            return;
+        }
 
-    if (this.end && this.end < now) {
-        callback(null, false);
-        return;
-    }
-    
-    Dummy.prototype.canRotate.call(this, callback);
+        if (this.balance < 0) {
+            callback(null, false);
+            return;
+        }
+
+        var now = Dummy.now();
+
+        if (this.end && this.end < now) {
+            callback(null, false);
+            return;
+        }
+
+        callback(null, true);
+    }.bind(this));
 };
 
 module.exports = Unit;

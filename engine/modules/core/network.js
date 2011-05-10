@@ -56,16 +56,13 @@ Unit.prototype.addFlight = function(flight) {
 };
 
 Unit.prototype.getFlights = function() {
-    var result = []
-      , len = this.flights.length;
+    var result = [];
 
-    for (var i=0; i<len; i++) {
+    for (var i=0, len = this.flights.length; i<len; i++) {
         if (!this.flights[i].deleted) {
             result.push(this.flights[i]);
         }
     }
-
-    this.flights = result;
 
     return result;
 };

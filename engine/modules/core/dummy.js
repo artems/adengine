@@ -8,7 +8,7 @@ Unit.now = function() {
 
 Unit.prototype.getId = function() {
     return this.id;
-}
+};
 
 Unit.prototype.canRotate = function(callback) {
     if (this.deleted) {

@@ -7,14 +7,14 @@ module.exports = {
 
     redis : {
         host : "localhost"
-      , port : 0000
-    },
-
-    log : {
-        format : ':remote-addr [:date] ":method :url :http-version" :status ":user-agent"'
+      , port : 9000
     },
 
     cookie : {
         name : "uid"
+    },
+
+    log : {
+        format : ':remote-addr [:date] ":method :url :http-version" :status ":user-agent"'
     }
-}
+};

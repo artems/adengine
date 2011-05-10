@@ -74,7 +74,7 @@ module.exports = function(callback) {
                     }
 
                     results.forEach(function(item) {
-                        var preg = new RegExp(item.preg_match == "*" ? ".*" : item.preg_match);
+                        var preg = new RegExp(item.preg_match.replace(/\*/g, '.*'));
                         site_page.update({id: item.page_id}, {$push: {'preg': preg}}, group.add());
                     });
                 });

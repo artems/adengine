@@ -129,13 +129,16 @@ Unit._findPlaceBySiteIdAndFormatId = function(registry, req, site_id, format_id,
     }
 
     var place = page.getPlaceByFormatId(format_id);
-    
+
     if (!place) {
         callback(new Error("ENG-0002"));
         return;
     }
 
     req.session.place = place;
+
+    callback();
 };
 
 module.exports = Unit;
+

@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>:::...</title>
+</head>
+<body leftmargin="0" topmargin="0" marginheight="0" marginwidth="0">
+<script language="JavaScript" type="text/javascript"><!--
+function callZP(){
+    for(var i=4; i<6; ++i) { if (typeof(a[i]) != 'undefined') (new Image).src=unescape(a[i]);} // call all zeropixels
+}
+function kCommand(pCmd, pArgs){
+    if (typeof(pCmd) == 'undefined') return;
+    if (pCmd == 'kill') {
+	self.close();
+	return;
+    }
+    if (pCmd == 'click') {
+	var link = unescape(a[1]);
+	if (typeof(pArgs) != 'undefined' && pArgs.toUpperCase().indexOf("HTTP://") == 0) link += '&rleurl=' + escape(pArgs);
+	window.open(link);
+	setTimeout('self.close();',100);
+	return;
+    }
+}
+function kcflash_DoFSCommand(pCmd, pAgrs){
+    kCommand(pCmd, pArgs);
+}
+var a=window.location.search.substring(1).split('&');
+var creative = unescape(a[0]); var reference = unescape(a[1]);
+var width = a[2]; var height = a[3];
+document.write('<script language="JavaScript" type="text/javascript" src="/tpl/popunder/internal.js"><\/script>\n');
+setTimeout('self.blur(); callZP();', 1000);
+//-->
+</script>
+</body>
+</html>

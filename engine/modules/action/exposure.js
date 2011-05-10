@@ -1,9 +1,9 @@
 var url   = require("url")
   , async = require("async")
-  , Dummy       = require("core/dummy")
-  , InitRequest = require("action/init_request")
-  , FindBanner  = require("action/find_banner")
-  , Error       = require("action/error")
+  , Dummy      = require("core/dummy")
+  , Request    = require("action/request")
+  , FindBanner = require("action/find_banner")
+  , Error      = require("action/error")
 ;
 
 function Unit(app, req, res) {
@@ -17,13 +17,13 @@ function Unit(app, req, res) {
 
             async.parallel([
                 function(callback) {
-                    InitRequest.getUid(app, req, callback);
+                    Request.getUid(app, req, callback);
                 }
+              //, function(callback) {
+              //      Request.getClient(app, req, callback);
+              //  }
               , function(callback) {
-                    InitRequest.getClient(app, req, callback);
-                }
-              , function(callback) {
-                    InitRequest.findPlace(app, req, callback);
+                    Request.findPlace(app, req, callback);
                 }
             ], function(err, results) {
                 callback(err);
@@ -38,12 +38,14 @@ function Unit(app, req, res) {
         },
 
         function(banner, callback) {
-            // show banner
+            var code = banner.getCode(req.session.place);
+            res.write(code);
+            
             callback();
         }
     ], function(err) {
         Error.errorHanlder(app, req, res, err);
     });
-};
+}
 
 module.exports = Unit;

@@ -18,7 +18,7 @@ Unit.prototype.execute = function(place, callback) {
     this.flight_pool.sort(function(a, b) {
         return Math.random() > 0.5 ? 1 : -1;
     });
-  
+
     this._selectFlight(function(err, is_finded) {
         if (is_finded) {                        
             callback(err, self.banner);
@@ -33,7 +33,7 @@ Unit.prototype._selectFlight = function(callback) {
 
     if (!this.flight) {
         callback(null, false);
-    } else {        
+    } else {
         this.flight.canRotate(function(err, result) {
             if (err) {
                 callback(err);
@@ -78,7 +78,7 @@ Unit.prototype._selectBanner = function(callback) {
     if (!this.banner) {
         this._selectProfile(callback);
     } else {
-        this.banner.verify(function(err, result) {
+        this.banner.canRotate(function(err, result) {
             if (err) {
                 callback(err);
             }

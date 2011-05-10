@@ -34,24 +34,28 @@ Unit._isValidParams = function(params) {
     return true;
 };
 
-Unit.prototype.addNetwork = function(network) {
-    this.networks.push(network);
-};
-
-Unit.prototype.getNetworks = function() {
-    return this.networks;
-};
-
-Unit.prototype.getNetwork = function() {
-    return this.network;
-};
-
 Unit.prototype.setPlug = function(plug) {
     this.plug = plug;
 };
 
 Unit.prototype.getPlug = function() {
     return this.plug;
+};
+
+Unit.prototype.addNetwork = function(network) {
+    this.networks.push(network);
+};
+
+Unit.prototype.getNetworks = function() {
+    var result = [];
+
+    for (var i=0, len = this.networks.length; i<len; i++) {
+        if (!this.networks[i].deleted) {
+            result.push(this.networks[i]);
+        }
+    }
+
+    return result;
 };
 
 Unit.prototype.addFlight = function(flight) {

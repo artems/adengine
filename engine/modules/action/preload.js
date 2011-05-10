@@ -62,7 +62,7 @@ Unit.prototype.execute = function(callback) {
 Unit.prototype.loadFormats = function(callback) {
     var mongo = this.app.mongo
       , factory = this.factory
-      , item_id = [];
+      , format_id = [];
 
     async.waterfall([
         function(callback) {
@@ -75,26 +75,26 @@ Unit.prototype.loadFormats = function(callback) {
 
         function(cursor, callback) {
             var group = async.group(callback);
-            
-            cursor.each(function(err, item) {                
+
+            cursor.each(function(err, item) {
                 if (!err && item != null) {
-                    item_id.push(item.id);
+                    format_id.push(item.id);
                     
                     factory.createFormat(item, group.add());
                 } else {
-                    group.finish(err);                    
+                    group.finish(err);
                 }
             });
         }
     ], function(err) {
-        callback(err, item_id);
+        callback(null, format_id);
     });
 }
 
 Unit.prototype.loadNetworks = function(callback) {
     var mongo = this.app.mongo
       , factory = this.factory
-      , item_id = [];
+      , network_id = [];
 
     async.waterfall([
         function(callback) {
@@ -110,7 +110,7 @@ Unit.prototype.loadNetworks = function(callback) {
             
             cursor.each(function(err, item) {                
                 if (!err && item != null) {
-                    item_id.push(item.id);
+                    network_id.push(item.id);
                     
                     factory.createNetwork(item, group.add());
                 } else {
@@ -119,14 +119,14 @@ Unit.prototype.loadNetworks = function(callback) {
             });
         }
     ], function(err) {
-        callback(err, item_id);
+        callback(null, network_id);
     });
 }
 
 Unit.prototype.loadTemplates = function(callback) {
     var mongo = this.app.mongo
       , factory = this.factory
-      , item_id = [];
+      , template_id = [];
 
     async.waterfall([
         function(callback) {
@@ -142,7 +142,7 @@ Unit.prototype.loadTemplates = function(callback) {
             
             cursor.each(function(err, item) {                
                 if (!err && item != null) {
-                    item_id.push(item.id);
+                    template_id.push(item.id);
                     
                     factory.createTemplate(item, group.add());
                 } else {
@@ -151,7 +151,7 @@ Unit.prototype.loadTemplates = function(callback) {
             });
         }
     ], function(err) {
-        callback(err, item_id)
+        callback(null, template_id)
     });
 }
 
@@ -168,18 +168,22 @@ Unit.prototype.loadFlights = function(callback) {
         function(collection, callback) {
             var now   = Dummy.now();
             var query = {
-                state : "active",
-                begin : {$lt: now},
-                end   : {$gt: now}
+                $or : [{
+                    is_plug : true
+                }, {
+                    state : "active"
+                  , begin : {$lt: now}
+                  , end   : {$gt: now}
+                }]
             };
             
-            collection.find(query, null, {sort: ['priority', "ascending"]}, callback);
+            collection.find(query, callback);
         },
         
         function(cursor, callback) {
             var group = async.group(callback);
             
-            cursor.each(function(err, item) {                                
+            cursor.each(function(err, item) {
                 if (!err && item != null) {
                     flight_id.push(item.id);
                     
@@ -190,9 +194,9 @@ Unit.prototype.loadFlights = function(callback) {
             });
         }
     ], function(err) {
-        callback(err, flight_id);
+        callback(null, flight_id);
     });
-}
+};
 
 Unit.prototype.loadCreatives = function(flight_id, callback) {
     var mongo = this.app.mongo
@@ -204,7 +208,6 @@ Unit.prototype.loadCreatives = function(flight_id, callback) {
         },
 
         function(collection, callback) {
-            var now   = Dummy.now();
             var query = {
                 flight_id : {$in: flight_id}
               , state     : {$ne: 'deleted'}
@@ -225,7 +228,7 @@ Unit.prototype.loadCreatives = function(flight_id, callback) {
             });
         }
     ], function(err) {
-        callback(err, flight_id);
+        callback(null, flight_id);
     });
 }
 
@@ -241,8 +244,8 @@ Unit.prototype.loadProfiles = function(flight_id, callback) {
 
         function(collection, callback) {
             var query = {
-                flight_id : {$in: flight_id}
-              , state     : {$ne: 'deleted'}
+                state     : {$ne: 'deleted'}
+              , flight_id : {$in: flight_id}
             };
             
             collection.find(query, callback);
@@ -262,9 +265,9 @@ Unit.prototype.loadProfiles = function(flight_id, callback) {
             });
         }
     ], function(err) {
-        callback(err, profile_id);
+        callback(null, profile_id);
     });
-}
+};
 
 Unit.prototype.loadBanners = function(profile_id, callback) {
     var mongo = this.app.mongo
@@ -302,9 +305,9 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
             });
         }
     ], function(err) {
-        callback(err, banner_id);
+        callback(null, banner_id);
     });
-}
+};
 
 Unit.prototype.loadSites = function(callback) {
     var mongo = this.app.mongo
@@ -339,7 +342,7 @@ Unit.prototype.loadSites = function(callback) {
             });
         }
     ], function(err) {
-        callback(err, site_id);
+        callback(null, site_id);
     });
 }
 
@@ -373,7 +376,7 @@ Unit.prototype.loadPlugs = function(site_id, callback) {
             });
         }
     ], function(err) {        
-        callback(err, site_id);
+        callback(null, site_id);
     });
 }
 
@@ -410,7 +413,7 @@ Unit.prototype.loadPages = function(site_id, callback) {
             });
         }
     ], function(err) {        
-        callback(err, page_id);
+        callback(null, page_id);
     });
 }
 
@@ -447,7 +450,7 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
             });
         }
     ], function(err) {        
-        callback(err, place_id);
+        callback(null, place_id);
     });
 }
 
@@ -479,7 +482,7 @@ Unit.prototype.loadCategory = function(callback) {
             });
         }
     ], function(err) {
-        callback(err, category_id);
+        callback(null, category_id);
     });
 }
 

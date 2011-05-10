@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>:::...</title>
+</head>
+<body leftmargin="0" topmargin="0" marginheight="0" marginwidth="0" onunload="DelCookie();">
+<script language="JavaScript" type="text/javascript"><!--
+function callZP(){
+for(var i=4; i<6; ++i) { if (typeof(a[i]) != 'undefined') (new Image).src=unescape(a[i]);} // call all zeropixels
+}
+function kClick(){
+    if (window.open(unescape(a[1]))) {self.close(); return false;}
+    else return true;
+}
+var a=window.location.search.substring(1).split('&');
+document.write('<a href="' + unescape(a[1]) + '" onClick="return kClick();" target="_blank"><img src="' + unescape(a[0]) + '" border="0" height="' + a[3] + '" width="' + a[2] + '"></a>');
+setTimeout('self.blur(); callZP();', 1000);
+//-->
+</script>
+</body>
+</html>

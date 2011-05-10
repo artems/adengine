@@ -26,7 +26,7 @@ Unit.Create = function(params, callback) {
     unit.size    = parseInt(params.size);
     unit.body    = params.body;
     unit.is_plug = params.is_plug || false;
-    unit.format  = params.format || null;
+    unit.format  = params.format  || null;
 
     callback(null, unit);
 };
@@ -44,6 +44,10 @@ Unit._isValidParams = function(params) {
         return false;
     }
 
+    if (params.is_plug == null || params.is_plug == undefined) {
+        return false;
+    }
+
     return true;
 };
 
@@ -52,7 +56,7 @@ Unit.prototype.getCode = function() {
 };
 
 Unit.prototype.getSize = function() {
-    return this.body;
+    return this.size;
 };
 
 Unit.prototype.isPlug = function() {
