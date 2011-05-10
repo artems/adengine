@@ -1,1 +1,1 @@
-require.paths.unshift(__dirname + '/../modules');
+require.paths.unshift(__dirname + '/../src/modules');
