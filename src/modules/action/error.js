@@ -101,7 +101,7 @@ Unit.prototype._showFormatPlug = function(callback) {
 };
 
 Unit.prototype._returnNoContent = function(callback) {
-    this.res.statusCode = 240;
+    this.res.statusCode = 204;
 
     callback();
 };

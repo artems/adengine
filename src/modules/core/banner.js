@@ -159,15 +159,24 @@ Unit.prototype.getCode = function(place) {
 
     code = creative.replaceParams(code);
 
+    /*
     code = code
-        .replace(/b\.kavanga\.ru/g, 'localhost:8080')  // TODO remove
-        .replace(/localhost:8080\/cstore/g, 'b.kavanga.ru/cstore')  // TODO remove
-        .replace(/%host%/g, 'localhost:8080')          // TODO remove
+        //.replace(/b\.kavanga\.ru/g, 'localhost:8080')  // TODO remove
+        //.replace(/localhost:8080\/cstore/g, 'b.kavanga.ru/cstore')  // TODO remove
+        .replace(/%host%/g, 'localhost:8080')
         .replace(/%net%/g, flight.network_id)
         .replace(/%flight%/g, flight.id)
         .replace(/%banner%/g, this.id)
         .replace(/%place%/g, place.id)
         .replace(/%banner_url%/g, this.getUrl());
+    */
+    
+    code = code
+        .replace(/#host#/g, 'localhost:8080')
+        .replace(/#place_id#/g, place.id)
+        .replace(/#flight_id#/g, flight.id)
+        .replace(/#banner_id#/g, this.id)
+        .replace(/#banner_url#/g, this.getUrl());
 
     return code;
 };

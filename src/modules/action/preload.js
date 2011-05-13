@@ -87,6 +87,7 @@ Unit.prototype.loadFormats = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, format_id);
     });
 }
@@ -119,6 +120,7 @@ Unit.prototype.loadNetworks = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, network_id);
     });
 }
@@ -151,6 +153,7 @@ Unit.prototype.loadTemplates = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, template_id)
     });
 }
@@ -194,6 +197,7 @@ Unit.prototype.loadFlights = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, flight_id);
     });
 };
@@ -228,6 +232,7 @@ Unit.prototype.loadCreatives = function(flight_id, callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, flight_id);
     });
 }
@@ -265,6 +270,7 @@ Unit.prototype.loadProfiles = function(flight_id, callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, profile_id);
     });
 };
@@ -305,6 +311,7 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, banner_id);
     });
 };
@@ -342,6 +349,7 @@ Unit.prototype.loadSites = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, site_id);
     });
 }
@@ -375,7 +383,8 @@ Unit.prototype.loadPlugs = function(site_id, callback) {
                 }
             });
         }
-    ], function(err) {        
+    ], function(err) {
+        err && console.log(err.stack);
         callback(null, site_id);
     });
 }
@@ -412,7 +421,8 @@ Unit.prototype.loadPages = function(site_id, callback) {
                 }
             });
         }
-    ], function(err) {        
+    ], function(err) {
+        err && console.log(err.stack);
         callback(null, page_id);
     });
 }
@@ -449,7 +459,8 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
                 }
             });
         }
-    ], function(err) {        
+    ], function(err) {
+        err && console.log(err.stack);
         callback(null, place_id);
     });
 }
@@ -482,6 +493,7 @@ Unit.prototype.loadCategory = function(callback) {
             });
         }
     ], function(err) {
+        err && console.log(err.stack);
         callback(null, category_id);
     });
 }
