@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-mongo aden ./category.js \
+mongo aden \
            ./format.js \
            ./network.js \
            ./template.js \

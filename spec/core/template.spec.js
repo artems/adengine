@@ -27,7 +27,6 @@ describe('Template', function() {
                 expect(template).toBeTruthy();
 
                 expect(template.getId()).toEqual(1);
-                expect(template.getSize()).toEqual(1);
                 expect(template.getCode()).toEqual("xxx");
                 expect(template.isPlug()).toBeFalsy();
             });
@@ -35,12 +34,6 @@ describe('Template', function() {
 
         it('should вернуть исключение, если отсутсвует id', function() {
             Template.Create(getRequiredParamsWithout('id'), function(err, template) {
-                expect(err).toBeTruthy();
-            });
-        });
-
-        it('should вернуть исключение, если отсутсвует size', function() {
-            Template.Create(getRequiredParamsWithout('size'), function(err, template) {
                 expect(err).toBeTruthy();
             });
         });

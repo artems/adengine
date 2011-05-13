@@ -1,3 +1,5 @@
+db.template.drop();
+
 db.template.save({"id": 1, "format_id": 10, "name": "Plug for ZeroPixel", "is_plug" : true, "body" : "", "params" : {}});
 db.template.save({"id": 2, "format_id": 20, "name": "Plug for PopUnder", "is_plug" : true, "body" : "", "params" : {}});
 db.template.save({"id": 3, "format_id": 20, "name": "Default PopUnder", "is_plug" : false, "body" : "", "params" : {}});

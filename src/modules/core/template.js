@@ -5,7 +5,6 @@ function Unit() {
     Dummy.call(this);
     
     this.id      = 0;
-    this.size    = 0;
     this.body    = null;
     this.format  = null;
     this.is_plug = false;
@@ -23,7 +22,6 @@ Unit.Create = function(params, callback) {
     }
 
     unit.id      = parseInt(params.id);
-    unit.size    = parseInt(params.size);
     unit.body    = params.body;
     unit.is_plug = params.is_plug || false;
     unit.format  = params.format  || null;
@@ -31,12 +29,8 @@ Unit.Create = function(params, callback) {
     callback(null, unit);
 };
 
-Unit._isValidParams = function(params) {
+Unit._isValidParams = function(params) {    
     if (isNaN(parseInt(params.id)) || parseInt(params.id) <= 0) {
-        return false;
-    }
-
-    if (isNaN(parseInt(params.size)) || parseInt(params.size) <= 0) {
         return false;
     }
 
@@ -53,10 +47,6 @@ Unit._isValidParams = function(params) {
 
 Unit.prototype.getCode = function() {
     return this.body;
-};
-
-Unit.prototype.getSize = function() {
-    return this.size;
 };
 
 Unit.prototype.isPlug = function() {

@@ -1,3 +1,5 @@
+db.format.drop();
+
 db.format.save({"id": 10, "name": "ZeroPixel", "wdith": null, "height": null, "delay": 0});
 db.format.save({"id": 20, "name": "PopUnder", "wdith": null, "height": null, "delay": 60});
 db.format.save({"id": 21, "name": "RichMedia", "wdith": null, "height": null, "delay": 60});

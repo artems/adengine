@@ -1,2 +1,2 @@
 test:
-	jasmine-node engine/spec
+	jasmine-node spec

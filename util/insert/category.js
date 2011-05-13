@@ -1,3 +1,5 @@
+db.campaign.drop();
+
 db.campaign.save({"id": 1, "parent_id": null, "name": 'Авто и Мото'});
 db.campaign.save({"id": 2, "parent_id": 1, "name": 'Автострахование'});
 db.campaign.save({"id": 3, "parent_id": 1, "name": 'Клубы автовладельцев'});

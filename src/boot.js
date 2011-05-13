@@ -42,7 +42,7 @@ var boot = {
     },
 
     _connRedis : function(callback) {
-        app.redis = Redis.createClient();
+        app.redis = Redis.createClient(config.redis.port, config.redis.host);
 
         callback();
     }

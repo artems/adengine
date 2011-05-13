@@ -1,3 +1,5 @@
+db.network.drop();
+
 db.network.save({"id": 1, "format_id": 10, "name": "ZeroNet", "group": "zero", "is_local": false});
 db.network.save({"id": 2, "format_id": 20, "name": "PopUnder: Light", "group": "light", "is_local": false});
 db.network.save({"id": 3, "format_id": 20, "name": "PopUnder: Category", "group": "category", "is_local": false});
