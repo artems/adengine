@@ -3,7 +3,6 @@ function Unit() {
     this.page      = null;
     this.format    = null;
     this.networks  = [];
-    this.code_type = '';
 }
 
 Unit.Create = function(params, callback) {
@@ -17,7 +16,6 @@ Unit.Create = function(params, callback) {
     unit.id = parseInt(params.id);
     unit.page = params.page || null;
     unit.format = params.format || null;
-    unit.code_type = params.code_type;
 
     callback(null, unit);
 };
@@ -27,10 +25,6 @@ Unit._isValidParams = function(params) {
         return false;
     }
     
-    if (params.code_type != "js" && params.code_type != "html") {
-        return false;
-    }
-
     return true;
 };
 
@@ -40,10 +34,6 @@ Unit.prototype.addNetwork = function(network) {
 
 Unit.prototype.getNetworks = function() {
     return this.networks;
-};
-
-Unit.prototype.getCodeType = function(format) {
-    return this.code_type;
 };
 
 Unit.prototype.setFormat = function(format) {

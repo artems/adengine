@@ -1,6 +1,7 @@
 var async   = require("async")
   , ip2long = require("utils/network").ip2long
 ;
+var GeoIp = require("geoip");
 
 function Unit() {
     
@@ -25,7 +26,7 @@ Unit.getUid = function(app, req, callback) {
 };
 
 Unit.getClient = function(app, req, callback) {
-    var mongo  = app.mongo
+    var geoip  = app.geoip
       , client = {
         ip        : ip2long((req.socket && req.socket.remoteAddress) || "127.0.0.1"),
         useragent : req.headers['user-agent'] || "",
@@ -36,27 +37,11 @@ Unit.getClient = function(app, req, callback) {
         }
     };
 
-    async.waterfall([
-        function(callback) {
-            mongo.collection("geo_ip", callback);
-        },
+    client.geo = geoip.lookupSync(client.ip);
 
-        function(geo_ip, callback) {
-            geo_ip.findOne({begin: {$lt: client.ip}, end: {$gt: client.ip}}, callback);
-        },
+    req.session.client = client;
 
-        function(geo_ip, callback) {
-            if (geo_ip) {
-                client.region.city_id    = geo_ip.city_id;
-                client.region.region_id  = geo_ip.region_id;
-                client.region.country_id = geo_ip.country_id;
-            }
-
-            req.session.client = client;
-
-            callback();
-        }
-    ], callback);
+    callback();
 };
 
 Unit.findPlace = function(app, req, callback) {

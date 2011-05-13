@@ -396,7 +396,7 @@ Unit.prototype.loadPages = function(site_id, callback) {
 
     async.waterfall([
         function(callback) {
-            mongo.collection("site_page", callback);
+            mongo.collection("page", callback);
         },
 
         function(collection, callback) {
@@ -434,7 +434,7 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
 
     async.waterfall([
         function(callback) {
-            mongo.collection("site_place", callback);
+            mongo.collection("place", callback);
         },
 
         function(collection, callback) {

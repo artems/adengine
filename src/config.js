@@ -10,6 +10,10 @@ module.exports = {
       , port : 6379
     },
 
+    geoip : {
+        file : "./util/geo/GeoLiteCity.dat"
+    },
+
     cookie : {
         name : "uid"
     },

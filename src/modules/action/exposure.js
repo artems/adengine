@@ -19,9 +19,9 @@ function Unit(app, req, res) {
                 function(callback) {
                     Request.getUid(app, req, callback);
                 }
-              //, function(callback) {
-              //      Request.getClient(app, req, callback);
-              //  }
+              , function(callback) {
+                    Request.getClient(app, req, callback);
+                }
               , function(callback) {
                     Request.findPlace(app, req, callback);
                 }

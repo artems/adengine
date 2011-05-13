@@ -5,7 +5,8 @@ var async  = require("async")
 
   , Redis       = require("redis")
   , MongoDB     = require('mongodb').Db
-  , MongoServer = require('mongodb').Server;
+  , MongoServer = require('mongodb').Server
+  , GeoIpCity   = require('geoip').City;
 
 var app = null;
 
@@ -21,6 +22,8 @@ var boot = {
     stop : function(callback) {
         app.mongo && app.mongo.close(callback);
         app.redis && app.redis.quit();
+        app.geoip && app.geoip.close();
+
     },
 
     _init : function(callback) {
@@ -31,6 +34,7 @@ var boot = {
         async.parallel([
             this._connMongo,
             this._connRedis,
+            this._connGeoIp,
         ], function(err) {
             callback(err, app);
         });
@@ -43,6 +47,12 @@ var boot = {
 
     _connRedis : function(callback) {
         app.redis = Redis.createClient(config.redis.port, config.redis.host);
+
+        callback();
+    },
+
+    _connGeoIp : function(callback) {
+        app.geoip = new GeoIpCity(config.geoip.file);
 
         callback();
     }
