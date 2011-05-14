@@ -12,6 +12,7 @@ mongo aden \
            ./banner.js \
            ./site.js \
            ./page.js \
-           ./place.js
+           ./place.js \
+           ./plug.js
 
 node ./template.node.js

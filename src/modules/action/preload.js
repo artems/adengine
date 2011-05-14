@@ -360,7 +360,7 @@ Unit.prototype.loadPlugs = function(site_id, callback) {
 
     async.waterfall([
         function(callback) {
-            mongo.collection("site_plug", callback);
+            mongo.collection("plug", callback);
         },
 
         function(collection, callback) {

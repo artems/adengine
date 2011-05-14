@@ -9,3 +9,6 @@ db.network.save({"id": 6, "format_id": 30, "name": "240x400: Light", "group": "l
 db.network.save({"id": 7, "format_id": 30, "name": "240x400: Category", "group": "category", "is_local": false});
 db.network.save({"id": 8, "format_id": 31, "name": "728x90: Light", "group": "light", "is_local": false});
 db.network.save({"id": 9, "format_id": 31, "name": "728x90: Category", "group": "category", "is_local": false});
+
+db.network.save({"id": 11, "format_id": 31, "name": "LN 240x480 > adengine.dev", "group": "local", "is_local": true});
+db.network.save({"id": 12, "format_id": 31, "name": "LN 728x90 > adengine.dev", "group": "local", "is_local": true});

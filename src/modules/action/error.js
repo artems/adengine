@@ -51,6 +51,7 @@ Unit.prototype.end = function(callback) {
 Unit.prototype.execute = function(err, callback) {
     var code = err.message.substr(0, 8);
 
+    console.log(code);
     switch (code) {
         case "ENG-0001" : // Переданы не верные параметры запроса
             this._returnNoContent(callback);
@@ -65,7 +66,10 @@ Unit.prototype.execute = function(err, callback) {
             // TODO запустить ротацию по флайтам, где можно не учитывать пользователя
             this._showFormatPlug(callback);
             break;
-        case "ENG-0005" : // Не нашлось баннеров для показа и нет заглушки сайта
+        case "ENG-0005" : // Не нашлось баннеров для показа
+            this._showFormatPlug(callback);
+            break;
+        case "ENG-0010" : // Не нашлось баннеров для показа и нет заглушки сайта
             this._showFormatPlug(callback);
             break;
         default :
@@ -86,7 +90,12 @@ Unit.prototype._setCookieAndRefresh = function(callback) {
 };
 
 Unit.prototype._showFormatPlug = function(callback) {
-    var format = this.app.registry.format[this.req.session.place.format_id];
+    if (!this.req.session.place) {
+        callback(new Error("ENG-0001"));
+        return;
+    }
+
+    var format = this.req.session.place.getFormat();
 
     if (!format || !format.getPlug()) {
         callback(new Error("ENG-0001"));

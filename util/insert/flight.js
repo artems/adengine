@@ -1,3 +1,4 @@
 db.flight.drop();
 
-db.flight.save({"id": 1, "account_id": 1, "user_id": 1, "campagin_id": 1, "network_id": 6, "name": "flight#1", "priority": 5, "budget": 100.00, "balance": 50.00, "spent": 0, "distribution": "max", "begin": new Date(2010, 0, 1), "end": new Date(2012, 11, 31), "limit" : {}, "state": "active", "comment": ""});
+db.flight.save({"id": 1, "account_id": 1, "user_id": 1, "campagin_id": 1, "network_id": 6, "name": "flight#1", "priority": 5, "budget": 100.00, "balance": 50.00, "spent": 0, "distribution": "max", "begin": new Date(2010, 0, 1), "end": new Date(2012, 11, 31), "is_plug": false, "limit" : {}, "state": "active", "comment": ""});
+db.flight.save({"id": 2, "account_id": 1, "user_id": null, "campagin_id": null, "network_id": 12, "name": "plug#1", "priority": 1, "budget": 0, "balance": 0, "spent": 0, "distribution": "max", "begin": new Date(1970, 1, 1), "end": new Date(2099, 12, 31), "is_plug": true, "limit" : {}, "state": "active", "comment": ""});

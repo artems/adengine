@@ -11,7 +11,7 @@ module.exports = {
     },
 
     geoip : {
-        file : "./util/geo/GeoLiteCity.dat"
+        file : "/usr/share/GeoIP/GeoLiteCity.dat"
     },
 
     cookie : {
