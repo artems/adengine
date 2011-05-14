@@ -9,6 +9,7 @@ function Unit() {
     this.balance      = 0.0;
     this.distribution = "max";
     this.is_plug      = false;
+    this.buyout       = {};
     this.network      = null;
     this.begin        = null;
     this.end          = null;
@@ -30,6 +31,7 @@ Unit.Create = function(params, callback) {
     unit.balance = parseFloat(params.balance);
     unit.distribution = params.distribution;
     unit.is_plug = params.is_plug;
+    unit.buyout = params.buyout || null;
     unit.network = params.network || null;
     
     if (params.begin && params.end) {
@@ -132,6 +134,14 @@ Unit.prototype.isPlug = function() {
 
 Unit.prototype.getEnd = function() {
     return this.end;
+};
+
+Unit.prototype.setBuyout = function(buyout, dir) {
+    this.buyout[dir] = buyout;
+};
+
+Unit.prototype.getBuyout = function(dir) {
+    return this.buyout[dir];
 };
 
 Unit.prototype.addProfile = function(profile) {

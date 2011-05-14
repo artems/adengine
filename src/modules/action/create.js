@@ -103,6 +103,9 @@ Unit.prototype.createFlight = function(item, callback) {
                 object.setNetwork(network);
             }
 
+            object.setBuyout(item.buyout["adv"], "adv");
+            object.setBuyout(item.buyout["pub"], "pub");
+
             registry.flight[item.id] = object;
         }
         

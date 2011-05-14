@@ -13,19 +13,9 @@ Unit.prototype.execute = function(place, callback) {
 
     this.place = place;
     this.flight_pool = [];
-    
-    //this.flight_pool = place.getFormat().getFlights();    
 
-    var network = place.getNetworks();
-   
-    for (var i=0, len=network.length; i<len; i++) {
-        this.flight_pool = this.flight_pool.concat(network[i].getFlights());
-    }
+    this.flight_pool = this._getFlights();
   
-    this.flight_pool.sort(function(flight_a, flight_b) {
-        return flight_a.getPriority() > flight_b.getPriority() ? 1 : -1;
-    });
-
     this._selectFlight(function(err, is_finded) {
         if (is_finded) {                        
             callback(err, self.banner);
@@ -33,6 +23,38 @@ Unit.prototype.execute = function(place, callback) {
             callback(new Error("ENG-0005"));
         }
     });
+};
+
+Unit.prototype._getFlights = function() {
+    var site    = this.place.getPage().getSite()
+      , network = this.place.getNetworks()
+      , pool    = [];
+
+    for (var i=0, len=network.length; i<len; i++) {
+        pool = pool.concat(network[i].getFlights());
+    }
+
+    // exclude by buyout
+    var buyout = site.getBuyout();
+    pool = pool.filter(function(flight) {        
+        return buyout.indexOf(flight.getBuyout("pub") != -1);
+    });
+
+    // sort by priority
+    pool.sort(function(flight_a, flight_b) {
+        return flight_a.getPriority() > flight_b.getPriority() ? 1 : -1;
+    });
+
+    // radnomize (remove?)
+    pool.sort(function(flight_a, flight_b) {
+        if (flight_a.getPriority() == flight_b.getPriority()) {
+            return Math.random() > 0.5 ? 1 : -1;
+        } else {
+            return -1;
+        }
+    });
+
+    return pool;
 };
 
 Unit.prototype._selectFlight = function(callback) {   

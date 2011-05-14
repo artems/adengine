@@ -72,6 +72,9 @@ Unit.prototype.execute = function(err, callback) {
         case "ENG-0010" : // Не нашлось баннеров для показа и нет заглушки сайта
             this._showFormatPlug(callback);
             break;
+        case "ENG-0011" : // Не прошел проверку реферер сайта
+            this._showFormatPlug(callback);
+            break;
         default :
             console.log("Unknow error\n" + err.stack);
             

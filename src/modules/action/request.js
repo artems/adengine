@@ -52,17 +52,34 @@ Unit.findPlace = function(app, req, callback) {
       , format_id = parseInt(req.query.fid) || 0
       ;
 
-    // TODO проверить preg для сайта и раздела
+    // TODO проверить preg раздела
 
-    if (place_id > 0) {
-        Unit._findPlaceByPlaceId(registry, req, place_id, callback);
-    } else if (page_id > 0 && format_id > 0) {
-        Unit._findPlaceByPageIdAndFormatId(registry, req, page_id, format_id, callback);
-    } else if (site_id > 0 && format_id > 0) {
-        Unit._findPlaceBySiteIdAndFormatId(registry, req, site_id, format_id, callback);
-    } else {
-        callback(new Error("ENG-0001"));
-    }
+    async.series([
+        function(callback) {
+            if (place_id > 0) {
+                Unit._findPlaceByPlaceId(registry, req, place_id, callback);
+            } else if (page_id > 0 && format_id > 0) {
+                Unit._findPlaceByPageIdAndFormatId(registry, req, page_id, format_id, callback);
+            } else if (site_id > 0 && format_id > 0) {
+                Unit._findPlaceBySiteIdAndFormatId(registry, req, site_id, format_id, callback);
+            } else {
+                callback(new Error("ENG-0001"));
+            }
+        },
+
+        function(callback) {
+            var site = req.session.site
+              , preg = site.getPreg()
+              , url  = req.headers['referer'];            
+            
+            if (!preg.test(url)) {
+                callback(new Error("ENG-0011"));
+            } else {
+                callback();
+            }
+        }
+    ], callback);
+    
 };
 
 Unit._findPlaceByPlaceId = function(registry, req, place_id, callback) {
@@ -71,9 +88,14 @@ Unit._findPlaceByPlaceId = function(registry, req, place_id, callback) {
     if (!place) {
         callback(new Error("ENG-0002"));
         return;
-    }   
+    }
+
+    var page = place.getPage()
+      , site = page && page.getSite();
 
     req.session.place = place;
+    req.session.page  = page;
+    req.session.site  = site;
 
     callback();
 };
@@ -94,6 +116,8 @@ Unit._findPlaceByPageIdAndFormatId = function(registry, req, page_id, format_id,
     }
         
     req.session.place = place;
+    req.session.page  = page;
+    req.session.site  = page.getSite();
 
     callback();
 };
@@ -121,6 +145,8 @@ Unit._findPlaceBySiteIdAndFormatId = function(registry, req, site_id, format_id,
     }
 
     req.session.place = place;
+    req.session.page  = page;
+    req.session.site  = site;
 
     callback();
 };
