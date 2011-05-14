@@ -96,9 +96,7 @@ Unit.prototype.createFlight = function(item, callback) {
         if (!err) {
             var network = self.getObject('network', item.network_id);
             if (network) {
-                var format = network.getFormat();
-                if (format && !object.isPlug()) {
-                    format.addFlight(object);
+                if (!object.isPlug()) {
                     network.addFlight(object);
                 }
                 
@@ -241,7 +239,7 @@ Unit.prototype.createPlace = function(item, callback) {
             
             for (var i in item.network) {
                 if (item.network.hasOwnProperty(i)) {
-                    var network = this.getObject('network', item.network[i]);
+                    var network = self.getObject('network', item.network[i]);
                     if (network) {
                         object.addNetwork(network);
                     }

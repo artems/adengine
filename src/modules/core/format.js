@@ -7,7 +7,6 @@ function Unit() {
     this.id       = 0;
     this.plug     = null;
     this.networks = [];
-    this.flights  = [];
 }
 
 util.inherits(Unit, Dummy);
@@ -52,22 +51,6 @@ Unit.prototype.getNetworks = function() {
     for (var i=0, len = this.networks.length; i<len; i++) {
         if (!this.networks[i].deleted) {
             result.push(this.networks[i]);
-        }
-    }
-
-    return result;
-};
-
-Unit.prototype.addFlight = function(flight) {
-    this.flights.push(flight);
-};
-
-Unit.prototype.getFlights = function() {
-    var result = [];
-
-    for (var i=0, len = this.flights.length; i<len; i++) {
-        if (!this.flights[i].deleted) {
-            result.push(this.flights[i]);
         }
     }
 

@@ -12,11 +12,18 @@ Unit.prototype.execute = function(place, callback) {
     var self = this;
 
     this.place = place;
-    this.flight_pool = place.getFormat().getFlights();
+    this.flight_pool = [];
+    
+    //this.flight_pool = place.getFormat().getFlights();    
 
-    // TODO remove it
-    this.flight_pool.sort(function(a, b) {
-        return Math.random() > 0.5 ? 1 : -1;
+    var network = place.getNetworks();
+   
+    for (var i=0, len=network.length; i<len; i++) {
+        this.flight_pool = this.flight_pool.concat(network[i].getFlights());
+    }
+  
+    this.flight_pool.sort(function(flight_a, flight_b) {
+        return flight_a.getPriority() > flight_b.getPriority() ? 1 : -1;
     });
 
     this._selectFlight(function(err, is_finded) {
