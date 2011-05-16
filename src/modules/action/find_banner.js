@@ -1,3 +1,5 @@
+var Dummy = require("core/dummy");
+
 function Unit() {
     this.flight  = null;
     this.profile = null;
@@ -8,16 +10,17 @@ function Unit() {
     this.banner_pool  = [];
 }
 
-Unit.prototype.execute = function(place, callback) {
+Unit.prototype.execute = function(client, place, callback) {
     var self = this;
 
     this.place = place;
+    this.client = client;
     this.flight_pool = [];
 
     this.flight_pool = this._getFlights();
   
     this._selectFlight(function(err, is_finded) {
-        if (is_finded) {                        
+        if (is_finded) {
             callback(err, self.banner);
         } else {
             callback(new Error("ENG-0005"));
@@ -42,17 +45,25 @@ Unit.prototype._getFlights = function() {
 
     // sort by priority
     pool.sort(function(flight_a, flight_b) {
-        return flight_a.getPriority() > flight_b.getPriority() ? 1 : -1;
+        return flight_a.getPriority() > flight_b.getPriority() ? -1 : 1;
     });
 
     // radnomize (remove?)
     pool.sort(function(flight_a, flight_b) {
         if (flight_a.getPriority() == flight_b.getPriority()) {
-            return Math.random() > 0.5 ? 1 : -1;
+            return Math.random() > 0.5 ? -1 : 1;
         } else {
             return -1;
         }
     });
+
+    this._session_vars = {
+        now        : Dummy.now()
+      , client_ip  : this.client.ip
+      , user_agent : this.client.user_agent
+      , site_id       : this.place.getPage().getSite().getId()
+      , site_category : this.place.getPage().getCategory()
+    };
 
     return pool;
 };
@@ -85,7 +96,7 @@ Unit.prototype._selectProfile = function(callback) {
     if (!this.profile) {
         this._selectFlight(callback);
     } else {
-        this.profile.canRotate(function(err, result) {
+        this.profile.canRotate(this._session_vars, function(err, result) {
             if (err) {
                 callback(err);
             }

@@ -64,11 +64,9 @@ Unit.prototype.setTarget = function(ruleset) {
 
 Unit.prototype.getTarget = function(target_id) {
     return this.target[target_id];
-}
+};
 
-Unit.prototype.canRotate = function(callback) {
-    var session_vars = {};
-
+Unit.prototype.canRotate = function(session_vars, callback) {
     Dummy.prototype.canRotate.call(this, function(err, result) {
         if (err || !result) {
             callback(err, result);

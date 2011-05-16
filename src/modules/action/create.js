@@ -256,19 +256,38 @@ Unit.prototype.createPlace = function(item, callback) {
     });
 };
 
-Unit.prototype.createTargeting = function(item, callback) {    
-    var self = this;
-    
+Unit.prototype.createRuleset = function(item, callback) {
+    var registry = this.registry;
+
     Ruleset.Create(item, function(err, object) {
         if (!err) {
-            var profile = self.getObject('profile', item.profile_id);
-            if (profile) {
-                profile.setTarget(object);
-            }
-        } 
-        
+            registry.ruleset[item.id] = object;
+        }
+
         callback(err);
     });
+};
+
+Unit.prototype.assignRuleset = function(profile_ruleset, callback) {
+    var self = this;
+
+    for (var i in profile_ruleset) {
+        if (profile_ruleset.hasOwnProperty(i)) {
+            var ruleset = self.getObject('ruleset', i);
+
+            if (ruleset) {
+                for (var j=0, len = profile_ruleset[i].length; j<len; j++) {
+                    var profile = self.getObject('profile', profile_ruleset[i][j]);
+
+                    if (profile) {
+                        profile.setTarget(ruleset);
+                    }
+                }
+            }
+        }
+    }
+
+    callback();
 };
 
 Unit.prototype.createSitePlug = function(item, callback) {

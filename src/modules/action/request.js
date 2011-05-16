@@ -1,7 +1,7 @@
 var async   = require("async")
   , ip2long = require("utils/network").ip2long
 ;
-var GeoIp = require("geoip");
+// var GeoIp = require("geoip");
 
 function Unit() {
     
@@ -28,16 +28,16 @@ Unit.getUid = function(app, req, callback) {
 Unit.getClient = function(app, req, callback) {
     var geoip  = app.geoip
       , client = {
-        ip        : ip2long((req.socket && req.socket.remoteAddress) || "127.0.0.1"),
-        useragent : req.headers['user-agent'] || "",
-        region    : {
+        ip         : ip2long((req.socket && req.socket.remoteAddress) || "127.0.0.1"),
+        user_agent : req.headers['user-agent'] || "",
+        region     : {
             city_id    : 0
           , region_id  : 0
           , country_id : 0
         }
     };
 
-    client.geo = geoip.lookupSync(client.ip);
+    //client.geo = geoip.lookupSync(client.ip);
 
     req.session.client = client;
 
@@ -70,8 +70,8 @@ Unit.findPlace = function(app, req, callback) {
         function(callback) {
             var site = req.session.site
               , preg = site.getPreg()
-              , url  = req.headers['referer'];            
-            
+              , url  = req.headers['referer'];
+
             if (!preg.test(url)) {
                 callback(new Error("ENG-0011"));
             } else {

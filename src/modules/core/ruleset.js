@@ -92,7 +92,7 @@ Unit.prototype._getProcessMethod = function() {
         default :
             return this._processDummy;
     }
-}
+};
 
 Unit.prototype._processDummy = function() {
     console.warn("unknow target #%d, ignore. Ruleset#%d", this.target_id, this.id);
@@ -177,7 +177,7 @@ Unit.prototype._processUserAgentTarget = function(rule, session_vars) {
     if (rule.any) {
         return true;
     }
-        
+
     return rule.regexp.test(session_vars.user_agent);
 };
 

@@ -6,8 +6,7 @@ var Profile = {
     targeting: {
         geo: {
             on: false,
-            invert: false,
             ruleset_id: 0
         }
     }
-}
+};

@@ -6,7 +6,7 @@ var async  = require("async")
   , Redis       = require("redis")
   , MongoDB     = require('mongodb').Db
   , MongoServer = require('mongodb').Server
-  , GeoIpCity   = require('geoip').City;
+  //, GeoIpCity   = require('geoip').City;
 
 var app = null;
 
@@ -32,9 +32,9 @@ var boot = {
         app.registry = {};
 
         async.parallel([
-            this._connMongo,
-            this._connRedis,
-            this._connGeoIp,
+            this._connMongo
+          , this._connRedis
+          //, this._connGeoIp
         ], function(err) {
             callback(err, app);
         });

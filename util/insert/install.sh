@@ -13,6 +13,7 @@ mongo aden \
            ./site.js \
            ./page.js \
            ./place.js \
-           ./plug.js
+           ./plug.js \
+           ./ruleset.js
 
 node ./template.node.js

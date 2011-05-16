@@ -35,17 +35,4 @@ describe('Format', function() {
     function getFormat(callback) {
         Format.Create({id: 1}, callback);
     }
-
-    it('should вернуть копию списка флайтов', function() {
-        getFormat(function(err, format) {
-            format.addFlight({});
-            format.addFlight({});
-
-            var list = format.getFlights();
-            list.pop();
-
-            expect(list.length).toEqual(1);
-            expect(format.getFlights().length).toEqual(2);
-        });
-    });
 });

@@ -19,12 +19,16 @@ function Unit(app) {
     registry.page     = {};
     registry.place    = {};
     registry.category = {};
+    registry.ruleset  = {};
     
     this.app.registry = registry;
 }
 
 Unit.prototype.execute = function(callback) {
     this.factory = new Create(this.app.registry);
+
+    this.ruleset_id = [];
+    this.profile_ruleset = {};
     
     async.series([
         this.loadFormats.bind(this)
@@ -38,6 +42,7 @@ Unit.prototype.execute = function(callback) {
             , this.loadBanners.bind(this)
           ], callback)
       }.bind(this)
+      , this.loadRulesets.bind(this)
       , function(callback) {
           async.waterfall([
               this.loadSites.bind(this)
@@ -239,6 +244,7 @@ Unit.prototype.loadCreatives = function(flight_id, callback) {
 
 Unit.prototype.loadProfiles = function(flight_id, callback) {
     var mongo = this.app.mongo
+      , self = this
       , factory = this.factory
       , profile_id = [];
 
@@ -258,10 +264,27 @@ Unit.prototype.loadProfiles = function(flight_id, callback) {
 
         function(cursor, callback) {
             var group = async.group(callback);
+            var ruleset_id = self.ruleset_id;
+            var profile_ruleset = self.profile_ruleset;
             
             cursor.each(function(err, item) {                                
                 if (!err && item != null) {  
                     profile_id.push(item.id);
+
+                    for (var i in item.target) {
+                        if (item.target.hasOwnProperty(i)) {
+                            if (item.target[i].on) {
+                                var id = item.target[i].ruleset_id;
+
+                                if (!profile_ruleset[id]) {
+                                    profile_ruleset[id] = [];
+                                }
+
+                                ruleset_id.push(id);
+                                profile_ruleset[id].push(item.id);
+                            }
+                        }
+                    }
                     
                     factory.createProfile(item, group.add());
                 } else {
@@ -313,6 +336,49 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
     ], function(err) {
         err && console.log(err.stack);
         callback(null, banner_id);
+    });
+};
+
+Unit.prototype.loadRulesets = function( callback) {
+    var mongo = this.app.mongo
+      , factory = this.factory
+      , ruleset_id = []
+      , query_ruleset_id = this.ruleset_id
+      , profile_ruleset = this.profile_ruleset;
+
+    async.waterfall([
+        function(callback) {
+            mongo.collection("ruleset", callback);
+        },
+
+        function(collection, callback) {
+            var query = {
+                id : {$in: query_ruleset_id}
+            };
+
+            collection.find(query, callback);
+        },
+
+        function(cursor, callback) {
+            var group = async.group(callback);
+
+            cursor.each(function(err, item) {
+                if (!err && item != null) {
+                    ruleset_id.push(item.id);
+
+                    factory.createRuleset(item, group.add());
+                } else {
+                    group.finish(err);
+                }
+            });
+        },
+
+        function(results, callback) {
+            factory.assignRuleset(profile_ruleset, callback);
+        }
+    ], function(err) {
+        err && console.log(err.stack);
+        callback(null, ruleset_id);
     });
 };
 
