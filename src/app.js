@@ -3,7 +3,7 @@ var boot = require("./boot"),
     connect = require('connect')
 
   , Preload  = require("action/preload")
-  , Exposure = require("action/exposure")
+  , Exposure = require("action/exposure");
 
 var _app   = null;
 var server = connect(

@@ -14,6 +14,8 @@ function Unit() {
     this.begin        = null;
     this.end          = null;
     this.profiles     = [];
+
+    this.counters     = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -158,6 +160,14 @@ Unit.prototype.getProfiles = function() {
     }
 
     return result;
+};
+
+Unit.prototype.addCounter = function(counter) {
+    this.counters[counter.getEvent()] = counter;
+};
+
+Unit.prototype.getCounter = function(event) {
+    return this.counters[event];
 };
 
 Unit.prototype.canRotate = function(callback) {

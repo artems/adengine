@@ -12,6 +12,8 @@ function Unit() {
     this.creative     = null;
     this.begin        = null;
     this.end          = null;
+
+    this.counters     = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -149,6 +151,14 @@ Unit.prototype.setCreative = function(creative) {
 
 Unit.prototype.getCreative = function() {
     return this.creative;
+};
+
+Unit.prototype.addCounter = function(counter) {
+    this.counters[counter.getEvent()] = counter;
+};
+
+Unit.prototype.getCounter = function(event) {
+    return this.counters[event];
 };
 
 Unit.prototype.getCode = function(place) {

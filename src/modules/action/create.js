@@ -11,6 +11,9 @@ var Template = require("core/template")
   , Site     = require("core/site")
   , Page     = require("core/page")
   , Place    = require("core/place")
+
+  , OverallCounter = require("core/counter/overall")
+  , OverallLimitCounter = require("core/counter/overall_limit")
   ;
 
 function Unit(registry) {  
@@ -91,7 +94,7 @@ Unit.prototype.createTemplate = function(item, callback) {
 Unit.prototype.createFlight = function(item, callback) {
     var self = this
       , registry = this.registry;
-    
+
     Flight.Create(item, function(err, object) {
         if (!err) {
             var network = self.getObject('network', item.network_id);
@@ -106,11 +109,13 @@ Unit.prototype.createFlight = function(item, callback) {
             object.setBuyout(item.buyout["adv"], "adv");
             object.setBuyout(item.buyout["pub"], "pub");
 
+            self._addCounters("flight", object, item);
+
             registry.flight[item.id] = object;
         }
         
         callback(err);
-    }); 
+    });
 };
 
 Unit.prototype.createCreative = function(item, callback) {
@@ -153,6 +158,8 @@ Unit.prototype.createProfile = function(item, callback) {
                 flight.addProfile(object);
                 object.setFlight(flight);
             }
+
+            self._addCounters("profile", object, item);
                         
             registry.profile[item.id] = object;
         } 
@@ -179,6 +186,8 @@ Unit.prototype.createBanner = function(item, callback) {
                     object.setCreative(creative);
                 }
             }
+
+            self._addCounters("banner", object, item);
                         
             registry.banner[item.id] = object;
         } 
@@ -299,6 +308,18 @@ Unit.prototype.createSitePlug = function(item, callback) {
     }
     
     callback();
+};
+
+Unit.prototype._addCounters = function(type, object, item) {
+    var counter;
+    
+    if (item.limit && item.limit.overall && item.limit.overall.exposure) {
+        counter = OverallLimitCounter.Create(type, item.id, 1, item.limit.overall.exposure.day);
+    } else {
+        counter = OverallCounter.Create(type, item.id, 1);
+    }
+
+    object.addCounter(counter);
 };
 
 module.exports = Unit;

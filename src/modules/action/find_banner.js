@@ -18,7 +18,7 @@ Unit.prototype.execute = function(client, place, callback) {
     this.flight_pool = [];
 
     this.flight_pool = this._getFlights();
-  
+
     this._selectFlight(function(err, is_finded) {
         if (is_finded) {
             callback(err, self.banner);
@@ -68,7 +68,11 @@ Unit.prototype._getFlights = function() {
     return pool;
 };
 
-Unit.prototype._selectFlight = function(callback) {   
+Unit.prototype._selectFlight = function(callback) {
+    if (this.flight) {
+        this.flight.removeSync();
+    }
+
     this.flight = this.flight_pool.shift();
 
     if (!this.flight) {
@@ -113,6 +117,10 @@ Unit.prototype._selectProfile = function(callback) {
 };
 
 Unit.prototype._selectBanner = function(callback) {
+    if (this.banner) {
+        this.banner.removeSync();
+    }
+
     this.banner = this.banner_pool.shift();
 
     if (!this.banner) {
@@ -124,13 +132,65 @@ Unit.prototype._selectBanner = function(callback) {
             }
             
             if (result) {
-                callback(null, true);
+                this._updateCounters(callback);
             } else {
                 // TODO try to use process.nextTick
                 this._selectBanner(callback);
             } 
         }.bind(this));
     }
+};
+
+var async = require("async");
+
+Unit.prototype._updateCounters = function(callback) {
+    var self = this
+      , next = null
+      , result = false;
+    
+    async.waterfall([
+        function(callback) {
+            self.banner.getCounter(1).incr(callback);
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                next = "_selectBanner";
+                callback(null, false);
+            } else {
+                self.profile.getCounter(1).incr(callback);
+            }
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                next = "_selectProfile";
+                callback(null, false);
+            } else {
+                self.flight.getCounter(1).incr(callback);
+            }
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                next = "_selectFlight";
+                callback();
+            } else {
+                result = true;
+                callback();
+            }
+        }
+    ], function(err) {
+        if (!err) {
+            if (result) {
+                callback(null, true);
+            } else {
+                self[next](callback);
+            }
+        } else {
+            callback(err);
+        }
+    })
 };
 
 module.exports = Unit;

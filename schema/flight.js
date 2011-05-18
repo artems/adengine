@@ -14,50 +14,42 @@ var Flight = {
     end: 0,
     state: "",
     comment: 0,
-    limit : {
-        day: {
-            user: {
-                click: 0,
-                exposhure: 0
+
+    limit: {
+        overall: {
+            click: {
+                day: 100,
+                all: 3000
             },
-            all: {
-                click: 0,
-                exposhure: 0
+
+            exposure: {
+                day: 1000,
+                all: 5000
             }
         },
-        week: {
-            user: {
-                click: 0,
-                exposhure: 0
+
+        user : {
+            click: {
+                all: 2,
+                interval: 3600
             },
-            all: {
-                click: 0,
-                exposhure: 0
-            }
-        },
-        month: {
-            user: {
-                click: 0,
-                exposhure: 0
+
+            exposure: {
+                all: 5,
+                interval: 600
             },
-            all: {
-                click: 0,
-                exposhure: 0
+
+            period : {
+                click: {
+                    count: 1,
+                    interval: 3600
+                },
+
+                exposure: {
+                    count: 30,
+                    interval: 3600
+                }
             }
-        },
-        total: {
-            user: {
-                click: 0,
-                exposhure: 0
-            },
-            all: {
-                click: 0,
-                exposhure: 0
-            }
-        },
-        interval : {
-            click: 0,
-            exposhure: 0
         }
     }
 };

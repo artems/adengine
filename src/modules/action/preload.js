@@ -1,8 +1,10 @@
 var async   = require("async")
   , Create  = require("./create")
   , Dummy   = require("core/dummy")
-  , Ruleset = require("core/ruleset");
-  
+  , Ruleset = require("core/ruleset")
+
+  , OverallCounter = require("core/counter/overall");
+
 function Unit(app) {
     this.app = app;
     
@@ -29,7 +31,9 @@ Unit.prototype.execute = function(callback) {
 
     this.ruleset_id = [];
     this.profile_ruleset = {};
-    
+
+    OverallCounter.setRedisClient(this.app.redis);
+
     async.series([
         this.loadFormats.bind(this)
       , this.loadNetworks.bind(this)
