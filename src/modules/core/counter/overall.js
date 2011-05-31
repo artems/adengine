@@ -1,6 +1,7 @@
 var redis;
 
 function Unit() {
+    this.delta = 0;
     this.event = 0;
     this.object_id = null;
     this.object_name = null;
@@ -28,15 +29,49 @@ Unit.Create = function(object_name, object_id, event) {
 };
 
 Unit.prototype.decr = function(callback) {
-    this.redis.decr(this.getKeyName(), callback);
+    var self = this;
+    
+    this.redis.decr(this.getKeyName(), function(err) {
+        if (err) {
+            callback(err);
+        } else {
+            self.delta--;
+            callback(null);
+        }
+    });
 };
 
 Unit.prototype.incr = function(callback) {
-    this.redis.incr(this.getKeyName(), callback);
+    var self = this;
+        
+    this.redis.incr(this.getKeyName(), function(err, count) {
+        if (!err) {
+            self.delta++;
+            callback(null, count);
+        } else {
+            callback(err);
+        }
+    });
 };
 
-Unit.prototype.getEvent = function(callback) {
+Unit.prototype.getEvent = function() {
     return this.event;
+};
+
+Unit.prototype.getObjectId = function() {
+    return this.object_id;
+};
+
+Unit.prototype.getObjectName = function() {
+    return this.object_name;
+};
+
+Unit.prototype.getCountAndReset = function() {
+    var delta = this.delta;
+
+    this.delta = 0;
+
+    return delta;
 };
 
 Unit.prototype.getKeyName = function() {

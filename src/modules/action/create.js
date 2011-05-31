@@ -12,12 +12,13 @@ var Template = require("core/template")
   , Page     = require("core/page")
   , Place    = require("core/place")
 
-  , OverallCounter = require("core/counter/overall")
+  , OverallCounter      = require("core/counter/overall")
   , OverallLimitCounter = require("core/counter/overall_limit")
   ;
 
-function Unit(registry) {  
-    this.registry = registry;
+function Unit(app) {
+    this.app = app;
+    this.registry = app.registry;
 }
 
 Unit.prototype.getObject = function(type, id) {
@@ -109,7 +110,7 @@ Unit.prototype.createFlight = function(item, callback) {
             object.setBuyout(item.buyout["adv"], "adv");
             object.setBuyout(item.buyout["pub"], "pub");
 
-            self._addCounters("flight", object, item);
+            self._addCounter("flight", object, item);
 
             registry.flight[item.id] = object;
         }
@@ -159,7 +160,7 @@ Unit.prototype.createProfile = function(item, callback) {
                 object.setFlight(flight);
             }
 
-            self._addCounters("profile", object, item);
+            self._addCounter("profile", object, item);
                         
             registry.profile[item.id] = object;
         } 
@@ -187,7 +188,7 @@ Unit.prototype.createBanner = function(item, callback) {
                 }
             }
 
-            self._addCounters("banner", object, item);
+            self._addCounter("banner", object, item);
                         
             registry.banner[item.id] = object;
         } 
@@ -310,16 +311,24 @@ Unit.prototype.createSitePlug = function(item, callback) {
     callback();
 };
 
-Unit.prototype._addCounters = function(type, object, item) {
-    var counter;
+Unit.prototype._addCounter = function(type, object, item) {
+    var counter
+      , registry = this.registry;
     
     if (item.limit && item.limit.overall && item.limit.overall.exposure) {
-        counter = OverallLimitCounter.Create(type, item.id, 1, item.limit.overall.exposure.day);
+        var limit_day = item.limit.overall.exposure.day || 0
+          , limit_all = item.limit.overall.exposure.all || 0
+          , count_day = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].day) || 0
+          , count_all = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].all) || 0
+          , limit     = Math.min(limit_all - (count_all - count_day), limit_day);
+        
+        counter = OverallLimitCounter.Create(type, item.id, 1, limit);
     } else {
         counter = OverallCounter.Create(type, item.id, 1);
     }
 
     object.addCounter(counter);
+    this.app.counter.addCounter(counter);
 };
 
 module.exports = Unit;

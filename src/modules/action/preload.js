@@ -22,12 +22,13 @@ function Unit(app) {
     registry.place    = {};
     registry.category = {};
     registry.ruleset  = {};
+    registry.counter  = {};
     
     this.app.registry = registry;
 }
 
 Unit.prototype.execute = function(callback) {
-    this.factory = new Create(this.app.registry);
+    this.factory = new Create(this.app);
 
     this.ruleset_id = [];
     this.profile_ruleset = {};
@@ -60,6 +61,7 @@ Unit.prototype.execute = function(callback) {
           Ruleset.setCategoryMap(this.app.registry.category);
           callback();
       }.bind(this)
+      , this.loadCounters.bind(this)
     ], callback);
     
     // TODO optimization
@@ -533,7 +535,7 @@ Unit.prototype.loadPlaces = function(page_id, callback) {
         err && console.log(err.stack);
         callback(null, place_id);
     });
-}
+};
 
 Unit.prototype.loadCategory = function(callback) {
     var mongo = this.app.mongo
@@ -565,6 +567,51 @@ Unit.prototype.loadCategory = function(callback) {
     ], function(err) {
         err && console.log(err.stack);
         callback(null, category_id);
+    });
+};
+
+Unit.prototype.loadCounters = function(callback) {
+    var mongo = this.app.mongo
+      , registry = this.app.registry;
+
+    async.waterfall([
+        function(callback) {
+            mongo.collection("counter", callback);
+        },
+
+        function(collection, callback) {
+            var query = {
+                event: 1
+            };
+            
+            collection.find(query, callback);
+        },
+
+        function(cursor, callback) {
+            var group = async.group(callback);
+
+            cursor.each(function(err, item) {
+                if (!err && item != null) {
+                    if (!registry.counter[item.object]) {
+                        registry.counter[item.object] = {};
+                    }
+                    if (!registry.counter[item.object][item.id]) {
+                        registry.counter[item.object][item.id] = {};
+                    }
+
+                    if (item.period !== 0) {
+                        registry.counter[item.object][item.id].day = item.count;
+                    } else {
+                        registry.counter[item.object][item.id].all = item.count;
+                    }
+                } else {
+                    group.finish(err);
+                }
+            });
+        }
+    ], function(err) {
+        err && console.log(err.stack);
+        callback(null);
     });
 }
 

@@ -63,7 +63,7 @@ describe('profile', function() {
     describe('canRotate', function() {
         it('should должен откручаваться по умолчанию', function() {
             getProfile(function(err, profile) {
-                profile.canRotate(function(err, result) {
+                profile.canRotate({}, function(err, result) {
                     expect(result).toBeTruthy();
                 });
             });
@@ -78,7 +78,7 @@ describe('profile', function() {
 
                 profile.setTarget(target);
 
-                profile.canRotate(function(err, result) {
+                profile.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });

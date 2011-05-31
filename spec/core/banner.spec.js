@@ -70,20 +70,6 @@ describe('Banner', function() {
             });
         });
         
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = getRequiredParams();
-
-            params.id = "1";
-            Banner.Create(params, function(err, banner) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Banner.Create(params, function(err, banner) {
-                expect(err).toBeTruthy();
-            });
-        });
-
         it('should вернуть исключение, если priority не лижит в диапазоне от 0 до 99', function() {
             var params = getRequiredParams();
 
@@ -164,7 +150,7 @@ describe('Banner', function() {
     }
     
     describe('canRotate', function() {
-        it('should должен откручаваться по умолчанию', function() {
+        it('can откручаваться по умолчанию', function() {
             getBanner(function(err, banner) {
                 banner.canRotate(function(err, result) {
                     expect(result).toBeTruthy();
@@ -206,11 +192,11 @@ describe('Banner', function() {
     });
 
     it('should заменять параметры в шаблоне параметрами из креатива', function() {
-        var flight = {id: 3, network_id: 8};
-        var place  = {id: 5};
-        var template_code = "";
-        var creative_code = "";
-        var code_excpect  = "";
+        var flight        = {id: 3, network_id: 8};
+        var place         = {id: 5};
+        var template_code = "%code%";
+        var creative_code = "42";
+        var code_excpect  = "42";
 
         var profile  = {
             getFlight: function() { return flight; }

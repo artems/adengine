@@ -49,20 +49,6 @@ describe('Template', function() {
                 expect(err).toBeTruthy();
             });
         });
-        
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = getRequiredParams();
-
-            params.id = "1";
-            Template.Create(params, function(err, template) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Template.Create(params, function(err, template) {
-                expect(err).toBeTruthy();
-            });
-        });
     });
 
     function getTemplate(callback) {

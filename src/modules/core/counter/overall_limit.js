@@ -25,6 +25,8 @@ Unit.prototype.incr = function(callback) {
 
     this.redis.incr(this.getKeyName(), function(err, count) {
         if (!err) {
+            self.delta++;
+            
             if (count > self.limit) {
                 self.decr(function(err) {
                     callback(err, false);

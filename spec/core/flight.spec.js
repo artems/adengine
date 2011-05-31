@@ -70,20 +70,6 @@ describe('Flight', function() {
             });
         });
 
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = getRequiredParams();
-
-            params.id = "1";
-            Flight.Create(params, function(err, flight) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Flight.Create(params, function(err, flight) {
-                expect(err).toBeTruthy();
-            });
-        });
-
         it('should вернуть исключение, если priority не лижит в диапазоне от 0 до 99', function() {
             var params = getRequiredParams();
 

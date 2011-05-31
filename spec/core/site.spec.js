@@ -64,20 +64,6 @@ describe('Site', function() {
                 expect(err).toBeTruthy();
             });
         });
-        
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = getRequiredParams();
-
-            params.id = "1";
-            Site.Create(params, function(err, site) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Site.Create(params, function(err, site) {
-                expect(err).toBeTruthy();
-            });
-        });
     });
 
     function getSite(callback) {

@@ -16,20 +16,6 @@ describe('Format', function() {
                 expect(format.getId()).toEqual(1);
             });
         });
-
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = {};
-
-            params.id = "1";
-            Format.Create(params, function(err, format) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Format.Create(params, function(err, format) {
-                expect(err).toBeTruthy();
-            });
-        });
     });
 
     function getFormat(callback) {

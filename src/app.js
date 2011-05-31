@@ -3,12 +3,12 @@ var boot = require("./boot"),
     connect = require('connect')
 
   , Preload  = require("action/preload")
+  , Counter  = require("action/counter")
   , Exposure = require("action/exposure");
 
 var _app   = null;
 var server = connect(
-    connect.bodyParser()
-  , connect.cookieParser()
+    connect.cookieParser()
   , connect.static(__dirname + "/../public")
   , connect.router(function(router) {
         router.get('/', function(req, res) {
@@ -28,9 +28,18 @@ async.waterfall([
 
     function(app, callback) {
         _app = app;
-        
-        app.preload = new Preload(app);
-        app.preload.execute(callback);
+
+        _app.preload = new Preload(_app);
+        _app.counter = new Counter(_app);
+        callback();
+    },
+
+    function(callback) {        
+        _app.preload.execute(callback);
+    },
+
+    function(callback) {        
+        _app.counter.execute(callback);
     }
 
 ], function(err) {

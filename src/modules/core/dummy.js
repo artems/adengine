@@ -6,6 +6,10 @@ Unit.now = function() {
     return new Date();
 };
 
+Unit.interval = function(interval) {
+    return interval;
+};
+
 Unit.prototype.getId = function() {
     return this.id;
 };

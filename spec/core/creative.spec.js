@@ -42,20 +42,6 @@ describe('Creative', function() {
                 expect(err).toBeTruthy();
             });
         });
-        
-        it('should вернуть исключение, если id нельзя преобразовать в число больше 0', function() {
-            var params = getRequiredParams();
-
-            params.id = "1";
-            Creative.Create(params, function(err, creative) {
-                expect(err).toBeFalsy();
-            });
-
-            params.id = "0";
-            Creative.Create(params, function(err, creative) {
-                expect(err).toBeTruthy();
-            });
-        });
     });
 
     function getCreative(callback) {

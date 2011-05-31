@@ -6,7 +6,7 @@ function Unit(app, req, res) {
     this.res = res;
 
     this.jumps = 0;
-};
+}
 
 Unit.errorHanlder = function(app, req, res, err, callback) {
     var handler = new Unit(app, req, res);
