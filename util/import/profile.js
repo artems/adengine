@@ -30,7 +30,7 @@ module.exports = function(callback) {
                             flight_id: item.flight_id,
                             name: item.profile_title,
                             state: item.profile_status,
-                            targeting: {}
+                            target: {}
                         }, group.add());
                     });
                 });
@@ -68,12 +68,11 @@ module.exports = function(callback) {
                             case 9: targeting = "site"; break;
                         }
 
-                        update["targeting." + targeting + ".on"] = (item.target_status == "active");
-                        update["targeting." + targeting + ".invert"] = false;
-                        update["targeting." + targeting + ".ruleset_id"] = item.set_id;
+                        update["target." + targeting + ".on"] = (item.target_status == "active");
+                        update["target." + targeting + ".invert"] = false;
+                        update["target." + targeting + ".ruleset_id"] = item.set_id;
 
                         profile.update({id: item.profile_id}, {$set: update}, group.add());
-
                     });
                 });
 

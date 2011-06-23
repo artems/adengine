@@ -9,7 +9,8 @@ function Unit() {
     this.banners = [];
     this.target  = {};
 
-    this.counters = {};
+    this.counters      = {};
+    this.user_counters = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -76,6 +77,13 @@ Unit.prototype.getCounter = function(event) {
     return this.counters[event];
 };
 
+Unit.prototype.addUserCounter = function(counter) {
+    this.user_counters[counter.getEvent()] = counter;
+};
+
+Unit.prototype.getUserCounter = function(event) {
+    return this.user_counters[event];
+};
 
 Unit.prototype.canRotate = function(session_vars, callback) {
     Dummy.prototype.canRotate.call(this, function(err, result) {

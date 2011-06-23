@@ -13,7 +13,8 @@ function Unit() {
     this.begin        = null;
     this.end          = null;
 
-    this.counters     = {};
+    this.counters      = {};
+    this.user_counters = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -118,7 +119,7 @@ Unit.prototype.getUrl = function() {
 
 Unit.prototype.setBegin = function(begin) {
     this.begin = begin;
-}
+};
 
 Unit.prototype.getBegin = function() {
     return this.begin;
@@ -126,7 +127,7 @@ Unit.prototype.getBegin = function() {
 
 Unit.prototype.setEnd = function(end) {
     this.end = end;
-}
+};
 
 Unit.prototype.getEnd = function() {
     return this.end;
@@ -159,6 +160,14 @@ Unit.prototype.addCounter = function(counter) {
 
 Unit.prototype.getCounter = function(event) {
     return this.counters[event];
+};
+
+Unit.prototype.addUserCounter = function(counter) {
+    this.user_counters[counter.getEvent()] = counter;
+};
+
+Unit.prototype.getUserCounter = function(event) {
+    return this.user_counters[event];
 };
 
 Unit.prototype.getCode = function(place) {

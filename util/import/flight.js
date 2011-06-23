@@ -35,17 +35,13 @@ module.exports = function(callback) {
                             balance: item.flight_balance,
                             spent: item.flight_spent,
                             budget: item.flight_budget,
+                            buyout: {"adv": "cpc", "pub": "cpm"},
                             distribution: item.flight_distribution,
                             begin: item.flight_dstart || new Date(1970, 1, 1),
                             end: item.flight_dfinish || new Date(2099, 12, 31),
                             is_plug: (item.flight_isplug == 1),
                             state: item.flight_status,
                             comment : item.flight_comment,
-                            flags: {
-                                day_done: 0,
-                                total_done: 0,
-                                have_active_banners: 1
-                            },
                             limit: {}
                         }, group.add());
                     });
@@ -75,15 +71,15 @@ module.exports = function(callback) {
                         switch (item.limit_type) {
                             case "day":
                                 period = "day";
-                                type = "all";
+                                type = "overall";
                                 break;
                             case "all" :
-                                period = "total";
-                                type ="all";
+                                period = "all";
+                                type ="overall";
                                 break;
                                 break;
                             case "user_all":
-                                period = "total";
+                                period = "all";
                                 type = "user";
                                 interval = item.limit_time;
                                 break;
@@ -109,14 +105,9 @@ module.exports = function(callback) {
                             case 45: event = "show";
                         }
 
-                        if (period && type && event && limit > 0) {
+                        if (type == "overall" && period && event && limit > 0) {
                             update = {};
-                            update["limit." + period + "." + type + "." + event] = limit;
-                            flight.update({"id": id},  {$set: update}, group.add());                            
-                        }
-                        if (interval) {
-                            update = {};
-                            update["limit.interval." + event] = interval;
+                            update["limit." + type + "." + event + "." + period] = limit;
                             flight.update({"id": id},  {$set: update}, group.add());
                         }
                     });

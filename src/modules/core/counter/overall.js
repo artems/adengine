@@ -75,7 +75,7 @@ Unit.prototype.getCountAndReset = function() {
 };
 
 Unit.prototype.getKeyName = function() {
-    return "counter." + this.object_name + "." + this.object_id + "." + this.event;
+    return "counter.overall." + this.object_name + "." + this.object_id + "." + this.event;
 };
 
 module.exports = Unit;

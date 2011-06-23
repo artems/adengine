@@ -48,11 +48,12 @@ function initRequest(app, req, callback) {
 }
 
 function findBanner(req, callback) {
-    var place = req.session.place
+    var uid = req.session.uid
+      , place = req.session.place
       , client = req.session.client
       , find_action = new FindBanner();
 
-    find_action.execute(client, place, function(err, banner) {
+    find_action.execute(uid, client, place, function(err, banner) {
         if (err && err.message.substr(0, 8) == "ENG-0005") {
             getSitePlug(req, callback);
         } else {

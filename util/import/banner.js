@@ -102,15 +102,15 @@ module.exports = function(callback) {
                                     switch (item.limit_type) {
                                         case "day":
                                             period = "day";
-                                            type = "all";
+                                            type = "overall";
                                             break;
                                         case "all" :
-                                            period = "total";
-                                            type ="all";
+                                            period = "all";
+                                            type ="overall";
                                             break;
                                             break;
                                         case "user_all":
-                                            period = "total";
+                                            period = "all";
                                             type = "user";
                                             interval = item.limit_time;
                                             break;
@@ -136,14 +136,9 @@ module.exports = function(callback) {
                                         case 45: event = "show";
                                     }
 
-                                    if (period && type && event && limit > 0) {
+                                    if (type == "overall" && period && event && limit > 0) {
                                         update = {};
-                                        update["limit." + period + "." + type + "." + event] = limit;
-                                        banner.update({"id": id},  {$set: update}, group.add());
-                                    }
-                                    if (interval) {
-                                        update = {};
-                                        update["limit.interval." + event] = interval;
+                                        update["limit." + type + "." + event + "." + period] = limit;
                                         banner.update({"id": id},  {$set: update}, group.add());
                                     }
                                 });

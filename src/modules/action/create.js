@@ -12,8 +12,10 @@ var Template = require("core/template")
   , Page     = require("core/page")
   , Place    = require("core/place")
 
-  , OverallCounter      = require("core/counter/overall")
-  , OverallLimitCounter = require("core/counter/overall_limit")
+  , OverallCounter     = require("core/counter/overall")
+  , LimitCounter       = require("core/counter/overall_limit")
+  , UserOverallCounter = require("core/counter/user_overall")
+  , UserPeriodCounter  = require("core/counter/user_period")
   ;
 
 function Unit(app) {
@@ -110,7 +112,7 @@ Unit.prototype.createFlight = function(item, callback) {
             object.setBuyout(item.buyout["adv"], "adv");
             object.setBuyout(item.buyout["pub"], "pub");
 
-            self._addCounter("flight", object, item);
+            self._addCounters("flight", object, item);
 
             registry.flight[item.id] = object;
         }
@@ -160,7 +162,7 @@ Unit.prototype.createProfile = function(item, callback) {
                 object.setFlight(flight);
             }
 
-            self._addCounter("profile", object, item);
+            self._addCounters("profile", object, item);
                         
             registry.profile[item.id] = object;
         } 
@@ -188,7 +190,7 @@ Unit.prototype.createBanner = function(item, callback) {
                 }
             }
 
-            self._addCounter("banner", object, item);
+            self._addCounters("banner", object, item);
                         
             registry.banner[item.id] = object;
         } 
@@ -311,24 +313,66 @@ Unit.prototype.createSitePlug = function(item, callback) {
     callback();
 };
 
-Unit.prototype._addCounter = function(type, object, item) {
+Unit.prototype._addCounters = function(type, object, item) {
+    // Счетчик с общими ограничениями
+    this._addOverallCounter(type, object, item);
+
+    // Счетчик с общим ограничением по уникалам c проверкой на минимальный интервал
+    this._addUserOverallCounter(type, object, item);
+};
+
+Unit.prototype._addOverallCounter = function(type, object, item) {
     var counter
       , registry = this.registry;
-    
+
     if (item.limit && item.limit.overall && item.limit.overall.exposure) {
         var limit_day = item.limit.overall.exposure.day || 0
           , limit_all = item.limit.overall.exposure.all || 0
           , count_day = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].day) || 0
           , count_all = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].all) || 0
           , limit     = Math.min(limit_all - (count_all - count_day), limit_day);
-        
-        counter = OverallLimitCounter.Create(type, item.id, 1, limit);
+
+        counter = LimitCounter.Create(type, item.id, 1, limit);
     } else {
         counter = OverallCounter.Create(type, item.id, 1);
     }
 
     object.addCounter(counter);
+
+    // Сохранить счетчик в общем пуле, где сбрасывать дельту
     this.app.counter.addCounter(counter);
+};
+
+Unit.prototype._addUserOverallCounter = function(type, object, item) {
+    var counter
+      , overall_limit   = 0
+      , min_interval    = 0
+      , period_limit    = 0
+      , period_interval = 0
+    ;
+
+    if (item.limit && item.limit.user) {
+        if (item.limit.user.exposure) {
+            overall_limit = item.limit.user.exposure.all      || 0;
+            min_interval  = item.limit.user.exposure.interval || 0;
+
+            if (overall_limit > 0 && min_interval > 0) {
+                counter = UserOverallCounter.Create(type, item.id, 1, overall_limit, min_interval);
+            }
+        }
+
+        // override counter if set period
+        if (item.limit.user.period && item.limit.user.period.exposure) {
+            period_limit    = item.limit.user.period.exposure.count    || 0;
+            period_interval = item.limit.user.period.exposure.interval || 0;
+
+            counter = UserPeriodCounter.Create(type, item.id, 1, overall_limit, min_interval, period_limit, period_interval);
+        }
+
+        if (counter) {
+            object.addUserCounter(counter);
+        }
+    }
 };
 
 module.exports = Unit;

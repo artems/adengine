@@ -6,6 +6,10 @@ Unit.now = function() {
     return new Date();
 };
 
+Unit.nowSec = function() {
+    return Math.floor(new Date() / 1000);
+};
+
 Unit.interval = function(interval) {
     return interval;
 };

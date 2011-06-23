@@ -1,4 +1,4 @@
-require.paths.unshift(__dirname + '/../../engine/modules');
+require.paths.unshift(__dirname + '/../../src/modules');
 
 var config = require("./_config");
 

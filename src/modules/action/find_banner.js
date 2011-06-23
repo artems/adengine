@@ -10,9 +10,10 @@ function Unit() {
     this.banner_pool  = [];
 }
 
-Unit.prototype.execute = function(client, place, callback) {
+Unit.prototype.execute = function(uid, client, place, callback) {
     var self = this;
 
+    this.uid = uid;
     this.place = place;
     this.client = client;
     this.flight_pool = [];
@@ -69,10 +70,6 @@ Unit.prototype._getFlights = function() {
 };
 
 Unit.prototype._selectFlight = function(callback) {
-    if (this.flight) {
-        this.flight.removeSync();
-    }
-
     this.flight = this.flight_pool.shift();
 
     if (!this.flight) {
@@ -117,10 +114,6 @@ Unit.prototype._selectProfile = function(callback) {
 };
 
 Unit.prototype._selectBanner = function(callback) {
-    if (this.banner) {
-        this.banner.removeSync();
-    }
-
     this.banner = this.banner_pool.shift();
 
     if (!this.banner) {
@@ -146,7 +139,9 @@ var async = require("async");
 Unit.prototype._updateCounters = function(callback) {
     var self = this
       , next = null
-      , result = false;
+      , result = false
+      , uid = this.uid
+    ;
     
     async.waterfall([
         function(callback) {
@@ -158,13 +153,39 @@ Unit.prototype._updateCounters = function(callback) {
                 next = "_selectBanner";
                 callback(null, false);
             } else {
+                if (self.banner.getUserCounter(1)) {
+                    self.banner.getUserCounter(1).incr(uid, callback);
+                } else {
+                    callback(null, true);
+                }
+            }
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                !next && (next = "_selectBanner");
+                callback(null, false);
+            } else {
                 self.profile.getCounter(1).incr(callback);
             }
         },
 
         function(is_done, callback) {
             if (!is_done) {
-                next = "_selectProfile";
+                !next && (next = "_selectProfile");
+                callback(null, false);
+            } else {
+                if (self.profile.getUserCounter(1)) {
+                    self.profile.getUserCounter(1).incr(uid, callback);
+                } else {
+                    callback(null, true);
+                }
+            }
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                !next && (next = "_selectProfile");
                 callback(null, false);
             } else {
                 self.flight.getCounter(1).incr(callback);
@@ -173,7 +194,20 @@ Unit.prototype._updateCounters = function(callback) {
 
         function(is_done, callback) {
             if (!is_done) {
-                next = "_selectFlight";
+                !next && (next = "_selectFlight");
+                callback(null, false);
+            } else {
+                if (self.flight.getUserCounter(1)) {
+                    self.flight.getUserCounter(1).incr(uid, callback);
+                } else {
+                    callback(null, true);
+                }
+            }
+        },
+
+        function(is_done, callback) {
+            if (!is_done) {
+                !next && (next = "_selectFlight");
                 callback();
             } else {
                 result = true;
@@ -190,7 +224,7 @@ Unit.prototype._updateCounters = function(callback) {
         } else {
             callback(err);
         }
-    })
+    });
 };
 
 module.exports = Unit;

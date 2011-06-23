@@ -7,3 +7,8 @@ db.flight.save({"id": 101, "account_id": 1, "user_id": 1, "campagin_id": 1, "net
 
 //db.flight.update({"id": 100}, {"$set": {"limit.overall.exposure.day" : 100}});
 //db.flight.update({"id": 100}, {"$set": {"limit.overall.exposure.all" : 1000}});
+
+//db.flight.update({"id": 100}, {"$set": {"limit.user.exposure.all" : 5}}); // 5 показов всего
+//db.flight.update({"id": 100}, {"$set": {"limit.user.exposure.interval" : 60}}); // не чаще 1 раза в минуту
+//db.flight.update({"id": 100}, {"$set": {"limit.user.period.exposure.count" : 2}}); // не чаще 2 показов уникалу за ...
+//db.flight.update({"id": 100}, {"$set": {"limit.user.period.exposure.interval" : 60}}); // ... минуту

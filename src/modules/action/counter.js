@@ -82,17 +82,17 @@ Unit.prototype._saveObjectCounters = function(object, callback) {
             for (var i in self._counter[object]) {
                 var counter = self._counter[object][i]
                   , query1  = {
-                    object : object
-                  , id     : counter.getObjectId()
-                  , event  : counter.getEvent()
-                  , period : period
-                }
+                        object : object
+                      , id     : counter.getObjectId()
+                      , event  : counter.getEvent()
+                      , period : period
+                    }
                   , query2  = {
-                    object : object
-                  , id     : counter.getObjectId()
-                  , event  : counter.getEvent()
-                  , period : 0
-                }
+                        object : object
+                      , id     : counter.getObjectId()
+                      , event  : counter.getEvent()
+                      , period : 0
+                    }
                   , update = {$inc: {count: counter.getCountAndReset()}};
 
                 coll.update(query1, update, {upsert: true}, group.add());
