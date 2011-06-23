@@ -11,7 +11,7 @@ function Unit(app) {
 }
 
 Unit.prototype.execute = function(callback) {
-    this.start();
+    // this.start();
 
     callback();
 };
@@ -76,16 +76,15 @@ Unit.prototype._saveObjectCounters = function(object, callback) {
         },
 
         function(coll, callback) {
-            var group  = async.group(callback)
-              , period = (new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 1000;
-
+            var group  = async.group(callback);
+            
             for (var i in self._counter[object]) {
                 var counter = self._counter[object][i]
                   , query1  = {
                         object : object
                       , id     : counter.getObjectId()
                       , event  : counter.getEvent()
-                      , period : period
+                      , period : Dummy.today()
                     }
                   , query2  = {
                         object : object

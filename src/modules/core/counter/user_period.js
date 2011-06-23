@@ -118,7 +118,7 @@ Unit.prototype.incr = function(user_id, callback) {
 
 
 Unit.prototype.getPeriodKeyName = function(user_id) {
-    return "counter.period." + this.object_name + "." + this.object_id + "." + user_id + "." + this.event;
+    return "counter.userperiod." + this.object_name + "." + this.object_id + "." + user_id + "." + this.event;
 };
 
 Unit.prototype._getBeginOf = function(timestamp) {

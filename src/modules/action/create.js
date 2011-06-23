@@ -328,11 +328,9 @@ Unit.prototype._addOverallCounter = function(type, object, item) {
     if (item.limit && item.limit.overall && item.limit.overall.exposure) {
         var limit_day = item.limit.overall.exposure.day || 0
           , limit_all = item.limit.overall.exposure.all || 0
-          , count_day = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].day) || 0
-          , count_all = (registry.counter[item.object] && registry.counter[item.object][item.id] && registry.counter[item.object][item.id].all) || 0
-          , limit     = Math.min(limit_all - (count_all - count_day), limit_day);
-
-        counter = LimitCounter.Create(type, item.id, 1, limit);
+        ;
+        
+        counter = LimitCounter.Create(type, item.id, 1, limit_day, limit_all);
     } else {
         counter = OverallCounter.Create(type, item.id, 1);
     }

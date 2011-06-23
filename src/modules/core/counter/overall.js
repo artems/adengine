@@ -28,23 +28,10 @@ Unit.Create = function(object_name, object_id, event) {
     return unit;
 };
 
-Unit.prototype.decr = function(callback) {
-    var self = this;
-    
-    this.redis.decr(this.getKeyName(), function(err) {
-        if (err) {
-            callback(err);
-        } else {
-            self.delta--;
-            callback(null);
-        }
-    });
-};
-
 Unit.prototype.incr = function(callback) {
     var self = this;
         
-    this.redis.incr(this.getKeyName(), function(err, count) {
+    this.redis.incr(this.getAllKeyName(), function(err, count) {
         if (!err) {
             self.delta++;
             callback(null, count);
@@ -74,7 +61,7 @@ Unit.prototype.getCountAndReset = function() {
     return delta;
 };
 
-Unit.prototype.getKeyName = function() {
+Unit.prototype.getAllKeyName = function() {
     return "counter.overall." + this.object_name + "." + this.object_id + "." + this.event;
 };
 

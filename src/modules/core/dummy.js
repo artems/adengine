@@ -7,7 +7,13 @@ Unit.now = function() {
 };
 
 Unit.nowSec = function() {
-    return Math.floor(new Date() / 1000);
+    return Math.floor(Unit.now() / 1000);
+};
+
+Unit.today = function() {
+    var now = Unit.now();
+
+    return (new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 1000
 };
 
 Unit.interval = function(interval) {

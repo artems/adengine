@@ -61,7 +61,7 @@ Unit.prototype.execute = function(callback) {
           Ruleset.setCategoryMap(this.app.registry.category);
           callback();
       }.bind(this)
-      , this.loadCounters.bind(this)
+      // , this.loadCounters.bind(this)
     ], callback);
     
     // TODO optimization
@@ -613,6 +613,6 @@ Unit.prototype.loadCounters = function(callback) {
         err && console.log(err.stack);
         callback(null);
     });
-}
+};
 
 module.exports = Unit;
