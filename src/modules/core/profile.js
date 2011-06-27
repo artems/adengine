@@ -1,5 +1,5 @@
 var util = require("util")
-  , Dummy = require("./dummy");
+  , Dummy = require("./carousel");
 
 function Unit() {
     Dummy.call(this);
@@ -8,9 +8,6 @@ function Unit() {
     this.flight  = null;
     this.banners = [];
     this.target  = {};
-
-    this.counters      = {};
-    this.user_counters = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -67,22 +64,6 @@ Unit.prototype.setTarget = function(ruleset) {
 
 Unit.prototype.getTarget = function(target_id) {
     return this.target[target_id];
-};
-
-Unit.prototype.addCounter = function(counter) {
-    this.counters[counter.getEvent()] = counter;
-};
-
-Unit.prototype.getCounter = function(event) {
-    return this.counters[event];
-};
-
-Unit.prototype.addUserCounter = function(counter) {
-    this.user_counters[counter.getEvent()] = counter;
-};
-
-Unit.prototype.getUserCounter = function(event) {
-    return this.user_counters[event];
 };
 
 Unit.prototype.canRotate = function(session_vars, callback) {

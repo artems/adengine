@@ -1,44 +1,80 @@
-var redis;
+var async = require("async")
+  , util2 = require("../util")
+;
 
 function Unit() {
     this.delta = 0;
     this.event = 0;
-    this.object_id = null;
+    this.object_id   = null;
     this.object_name = null;
 
     this.redis = null;
 }
 
-Unit.setRedisClient = function(_redis_) {
-    redis = _redis_;
-};
-Unit.getRedisClient = function(_redis_) {
-    return redis;
-};
-
-
-Unit.Create = function(object_name, object_id, event) {
+Unit.Create = function(params, redis, callback) {
     var unit = new Unit();
 
-    unit.event       = event || 1;
-    unit.object_id   = object_id;
-    unit.object_name = object_name;
+    if (!Unit._isValidParams(params)) {
+        callback(new Error("ENG-0007"));
+        return;
+    }
+
+    unit.event       = params.event || 1;
+    unit.object_id   = params.object_id;
+    unit.object_name = params.object_name;
     unit.redis       = redis;
 
-    return unit;
+    callback(null, unit);
+};
+
+Unit._isValidParams = function(params) {
+    if (isNaN(parseInt(params.object_id)) || parseInt(params.object_id) <= 0) {
+        return false;
+    }
+
+    if (!params.object_name || params.object_name.constructor != String) {
+        return false;
+    }
+    
+    if (params.event && (isNaN(parseInt(params.event)) || parseInt(params.event) < 0)) {
+        return false;
+    }
+
+    return true;
 };
 
 Unit.prototype.incr = function(callback) {
-    var self = this;
-        
-    this.redis.incr(this.getAllKeyName(), function(err, count) {
-        if (!err) {
-            self.delta++;
-            callback(null, count);
-        } else {
+    var self = this
+      , group = async.group(function(err, counts) {
+        if (err) {
             callback(err);
+        } else {
+            self.delta++;
+            callback(null, true);
         }
     });
+
+    this.redis.incr(this.getAllKey(), group.add('all'));
+    this.redis.incr(this.getDayKey(), group.add('day'));
+
+    group.finish();
+};
+
+Unit.prototype.decr = function(callback) {
+    var self = this
+      , group = async.group(function(err, counts) {
+        if (err) {
+            callback(err);
+        } else {
+            self.delta--;
+            callback(null, true);
+        }
+    });
+
+    this.redis.decr(this.getAllKey(), group.add('all'));
+    this.redis.decr(this.getDayKey(), group.add('day'));
+
+    group.finish();
 };
 
 Unit.prototype.getEvent = function() {
@@ -61,8 +97,25 @@ Unit.prototype.getCountAndReset = function() {
     return delta;
 };
 
-Unit.prototype.getAllKeyName = function() {
-    return "counter.overall." + this.object_name + "." + this.object_id + "." + this.event;
+Unit.prototype.getAllKey = function() {
+    return [
+        "counter"
+      , "all"
+      , this.object_name
+      , this.object_id
+      , this.event
+    ].join(".");
+};
+
+Unit.prototype.getDayKey = function() {
+    return [
+        "counter"
+      , "day"
+      , util2.today()
+      , this.object_name
+      , this.object_id
+      , this.event
+    ].join(".");
 };
 
 module.exports = Unit;

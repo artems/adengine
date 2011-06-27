@@ -112,12 +112,12 @@ Unit.prototype.createFlight = function(item, callback) {
             object.setBuyout(item.buyout["adv"], "adv");
             object.setBuyout(item.buyout["pub"], "pub");
 
-            self._addCounters("flight", object, item);
-
             registry.flight[item.id] = object;
+
+            self._addCounters("flight", object, item, callback);
+        } else {
+            callback(err);
         }
-        
-        callback(err);
     });
 };
 
@@ -161,13 +161,13 @@ Unit.prototype.createProfile = function(item, callback) {
                 flight.addProfile(object);
                 object.setFlight(flight);
             }
-
-            self._addCounters("profile", object, item);
                         
             registry.profile[item.id] = object;
-        } 
-        
-        callback(err);
+
+            self._addCounters("profile", object, item, callback);
+        } else {
+            callback(err);
+        }
     }); 
 };
 
@@ -190,12 +190,12 @@ Unit.prototype.createBanner = function(item, callback) {
                 }
             }
 
-            self._addCounters("banner", object, item);
-                        
             registry.banner[item.id] = object;
-        } 
-        
-        callback(err);
+
+            self._addCounters("banner", object, item, callback);
+        } else {
+            callback(err);
+        }
     }); 
 };
 
@@ -313,63 +313,99 @@ Unit.prototype.createSitePlug = function(item, callback) {
     callback();
 };
 
-Unit.prototype._addCounters = function(type, object, item) {
-    // Счетчик с общими ограничениями
-    this._addOverallCounter(type, object, item);
+Unit.prototype._addCounters = function(type, object, item, callback) {
+    var self = this;
+    
+    async.series([
+        function(callback) {
+            // Счетчик с общими ограничениями
+            self._addOverallCounter(type, object, item, callback);
+        },
 
-    // Счетчик с общим ограничением по уникалам c проверкой на минимальный интервал
-    this._addUserOverallCounter(type, object, item);
+        function(callback) {
+            // Счетчик с общим ограничением по уникалам c проверкой на минимальный интервал
+            self._addUserOverallCounter(type, object, item, callback);
+        }
+    ], callback);
 };
 
-Unit.prototype._addOverallCounter = function(type, object, item) {
-    var counter
-      , registry = this.registry;
+Unit.prototype._addOverallCounter = function(type, object, item, callback) {
+    var self = this;
+    
+    var params = {
+        event       : 1
+      , object_id   : item.id
+      , object_name : type
+    };
+    
+    var factory = OverallCounter.Create;
 
     if (item.limit && item.limit.overall && item.limit.overall.exposure) {
-        var limit_day = item.limit.overall.exposure.day || 0
-          , limit_all = item.limit.overall.exposure.all || 0
-        ;
-        
-        counter = LimitCounter.Create(type, item.id, 1, limit_day, limit_all);
-    } else {
-        counter = OverallCounter.Create(type, item.id, 1);
+        params.limit_day = item.limit.overall.exposure.day || 0;
+        params.limit_all = item.limit.overall.exposure.all || 0;
+
+        if (params.limit_day > 0 || params.limit_all > 0) {
+            factory = LimitCounter.Create;
+        }
     }
 
-    object.addCounter(counter);
+    factory(params, this.app.redis, function(err, counter) {
+        if (!err) {
+            object.addCounter(counter);
 
-    // Сохранить счетчик в общем пуле, где сбрасывать дельту
-    this.app.counter.addCounter(counter);
+            // Сохранить счетчик в общем пуле, где сбрасывать дельту
+            self.app.counter.addCounter(counter);
+        }
+        
+        callback(err);
+    });
 };
 
-Unit.prototype._addUserOverallCounter = function(type, object, item) {
+Unit.prototype._addUserOverallCounter = function(type, object, item, callback) {
     var counter
       , overall_limit   = 0
       , min_interval    = 0
       , period_limit    = 0
       , period_interval = 0
     ;
+    var params = {
+        event       : 1
+      , object_id   : item.id
+      , object_name : type
+    };
+
+    var factory = null;
 
     if (item.limit && item.limit.user) {
         if (item.limit.user.exposure) {
-            overall_limit = item.limit.user.exposure.all      || 0;
-            min_interval  = item.limit.user.exposure.interval || 0;
+            params.limit_all    = item.limit.user.exposure.all      || 0;
+            params.min_interval = item.limit.user.exposure.interval || 0;
 
-            if (overall_limit > 0 && min_interval > 0) {
-                counter = UserOverallCounter.Create(type, item.id, 1, overall_limit, min_interval);
+            if (params.limit_all > 0 || params.min_interval > 0) {
+                factory = UserOverallCounter.Create;
             }
         }
 
-        // override counter if set period
         if (item.limit.user.period && item.limit.user.period.exposure) {
-            period_limit    = item.limit.user.period.exposure.count    || 0;
-            period_interval = item.limit.user.period.exposure.interval || 0;
+            params.period_limit    = item.limit.user.period.exposure.count    || 0;
+            params.period_interval = item.limit.user.period.exposure.interval || 0;
 
-            counter = UserPeriodCounter.Create(type, item.id, 1, overall_limit, min_interval, period_limit, period_interval);
+            if (params.period_limit > 0 && params.period_interval > 0) {
+                factory = UserPeriodCounter.Create;
+            }
         }
+    }
+    
+    if (factory) {
+        factory(params, this.app.redis, function(err, counter) {
+            if (!err) {
+                object.addUserCounter(counter);
+            }
 
-        if (counter) {
-            object.addUserCounter(counter);
-        }
+            callback(err);
+        });
+    } else {
+        callback();
     }
 };
 

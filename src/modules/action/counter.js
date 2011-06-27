@@ -1,7 +1,7 @@
 var fs    = require("fs")
   , path  = require("path")
   , async = require("async")
-  , Dummy = require("core/dummy");
+  , util2 = require("core/util");
 
 function Unit(app) {
     this.app = app;
@@ -19,7 +19,7 @@ Unit.prototype.execute = function(callback) {
 Unit.prototype.start = function() {
     var interval = this.app.config.counters.interval;
     
-    this.intid = setInterval(this.saveCurrCounters.bind(this), Dummy.interval(interval));
+    this.intid = setInterval(this.saveCurrCounters.bind(this), util2.interval(interval));
 };
 
 Unit.prototype.stop = function() {
@@ -66,7 +66,7 @@ Unit.prototype._saveObjectCounters = function(object, callback) {
     }
 
     var self  = this
-      , now   = Dummy.now()
+      , now   = util2.now()
       , mongo = this.app.mongo
       ;
 
@@ -84,7 +84,7 @@ Unit.prototype._saveObjectCounters = function(object, callback) {
                         object : object
                       , id     : counter.getObjectId()
                       , event  : counter.getEvent()
-                      , period : Dummy.today()
+                      , period : util2.today()
                     }
                   , query2  = {
                         object : object

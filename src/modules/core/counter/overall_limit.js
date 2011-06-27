@@ -1,37 +1,63 @@
 var util = require("util")
   , async = require("async")
-  , Dummy = require("../dummy")
   , Parent = require("./overall");
 
 function Unit() {
     Parent.call(this);
-    this.limit = 0;
+
+    this.limit_day = 0;
+    this.limit_all = 0;
 }
 
 util.inherits(Unit, Parent);
 
-Unit.Create = function(object_name, object_id, event, limit_day, limit_all) {
+Unit.Create = function(params, redis, callback) {
     var unit = new Unit();
 
-    unit.event       = event || 1;
-    unit.object_id   = object_id;
-    unit.object_name = object_name;
-    unit.limit_day   = limit_day;
-    unit.limit_all   = limit_all;
-    unit.redis       = Parent.getRedisClient();
+    if (!Unit._isValidParams(params)) {
+        callback(new Error("ENG-0007"));
+        return;
+    }
 
-    return unit;
+    unit.event       = params.event || 1;
+    unit.object_id   = params.object_id;
+    unit.object_name = params.object_name;
+    unit.limit_day   = params.limit_day;
+    unit.limit_all   = params.limit_all;
+    unit.redis       = redis;
+
+    callback(null, unit);
+};
+
+Unit._isValidParams = function(params) {
+    if (!Parent._isValidParams(params)) {
+        return false;
+    }
+
+    if (params.limit_day && (isNaN(parseInt(params.limit_day)) || parseInt(params.limit_day) < 0)) {
+        return false;
+    }
+
+    if (params.limit_all && (isNaN(parseInt(params.limit_day)) || parseInt(params.limit_day) < 0)) {
+        return false;
+    }
+
+    if (!params.limit_day && !params.limit_all) {
+        return false;
+    }
+
+    return true;
 };
 
 Unit.prototype.incr = function(callback) {
-    var self = this;
+    var self = this, result;
 
     async.waterfall([
         function(callback) {
             var group = async.group(callback);
 
-            self.redis.incr(self.getAllKeyName(), group.add('all'));
-            self.redis.incr(self.getDayKeyName(), group.add('day'));
+            self.redis.incr(self.getAllKey(), group.add('all'));
+            self.redis.incr(self.getDayKey(), group.add('day'));
 
             group.finish();
         },
@@ -39,57 +65,17 @@ Unit.prototype.incr = function(callback) {
         function(counts, callback) {
             self.delta++;
 
-            var all_overhead = counts["all"] > self.limit_all
-              , day_overhead = counts["day"] > self.limit_day
+            var all_overhead = self.limit_all > 0 && counts["all"] > self.limit_all
+              , day_overhead = self.limit_day > 0 && counts["day"] > self.limit_day
             ;
 
-            if (all_overhead || day_overhead) {
-                callback(null, false)
-            } else {
-                callback(null, true)
-            }
-        },
+            result = (all_overhead || day_overhead) ? false : true;
 
-        function(result, callback) {
-            if (!result) {
-                var group = async.group(callback);
-
-                self.redis.decr(self.getAllKeyName(), group.add('all'));
-                self.redis.decr(self.getDayKeyName(), group.add('day'));
-                
-                group.finish();
-
-                self.delta--;
-            } else {
-                callback(null, true);
-            }
-        },
-
-        function(count, callback) {
-            if (count !== true) {
-                callback(Error("1"))
-            } else {
-                callback();
-            }
+            callback();
         }
     ], function(err) {
-        if (err) {
-            if (err.message == "1") {
-                // сработало ограничение
-                callback(null, false);
-            } else {
-                // другая ошибка
-                callback(err);
-            }
-        } else {
-            // удачно увеличили счетчики
-            callback(null, true);
-        }
+        callback(err, result);
     });
-};
-
-Unit.prototype.getDayKeyName = function() {
-    return "counter.period." + Dummy.today() + "." + this.object_name + "." + this.object_id + "." + this.event;
 };
 
 module.exports = Unit;

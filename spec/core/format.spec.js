@@ -17,8 +17,4 @@ describe('Format', function() {
             });
         });
     });
-
-    function getFormat(callback) {
-        Format.Create({id: 1}, callback);
-    }
 });

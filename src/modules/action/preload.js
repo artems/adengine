@@ -1,9 +1,8 @@
 var async   = require("async")
   , Create  = require("./create")
-  , Dummy   = require("core/dummy")
+  , util2   = require("core/util")
   , Ruleset = require("core/ruleset")
-
-  , OverallCounter = require("core/counter/overall");
+;
 
 function Unit(app) {
     this.app = app;
@@ -32,8 +31,6 @@ Unit.prototype.execute = function(callback) {
 
     this.ruleset_id = [];
     this.profile_ruleset = {};
-
-    OverallCounter.setRedisClient(this.app.redis);
 
     async.series([
         this.loadFormats.bind(this)
@@ -167,7 +164,7 @@ Unit.prototype.loadTemplates = function(callback) {
         err && console.log(err.stack);
         callback(null, template_id)
     });
-}
+};
 
 Unit.prototype.loadFlights = function(callback) {
     var mongo = this.app.mongo
@@ -180,7 +177,7 @@ Unit.prototype.loadFlights = function(callback) {
         },
 
         function(collection, callback) {
-            var now   = Dummy.now();
+            var now   = util2.now();
             var query = {
                 $or : [{
                     is_plug : true
@@ -246,7 +243,7 @@ Unit.prototype.loadCreatives = function(flight_id, callback) {
         err && console.log(err.stack);
         callback(null, flight_id);
     });
-}
+};
 
 Unit.prototype.loadProfiles = function(flight_id, callback) {
     var mongo = this.app.mongo
@@ -315,7 +312,7 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
         },
 
         function(collection, callback) {
-            var now   = Dummy.now();
+            var now   = util2.now();
             var query = {
                 profile_id : {$in: profile_id}
               , state      : "active"
@@ -330,7 +327,7 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
             var group = async.group(callback);
             
             cursor.each(function(err, item) {                                
-                if (!err && item != null) {  
+                if (!err && item != null) {
                     banner_id.push(item.id);
                     
                     factory.createBanner(item, group.add());
@@ -424,7 +421,7 @@ Unit.prototype.loadSites = function(callback) {
         err && console.log(err.stack);
         callback(null, site_id);
     });
-}
+};
 
 Unit.prototype.loadPlugs = function(site_id, callback) {
     var mongo = this.app.mongo
@@ -459,7 +456,7 @@ Unit.prototype.loadPlugs = function(site_id, callback) {
         err && console.log(err.stack);
         callback(null, site_id);
     });
-}
+};
 
 Unit.prototype.loadPages = function(site_id, callback) {
     var mongo = this.app.mongo

@@ -1,3 +1,6 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+
 function Unit() {
     this.id       = 0;
     this.preg     = null;
@@ -5,6 +8,8 @@ function Unit() {
     this.category = [];    
     this.places   = {};
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();
@@ -67,7 +72,7 @@ Unit.prototype.getPlaceByFormatId = function(format_id) {
     var places_on_page = this.getPlacesByFormatId(format_id);
 
     return places_on_page[0];
-}
+};
 
 Unit.prototype.getPlacesByFormatId = function(format_id) {
     return this.places[format_id] || [];

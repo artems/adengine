@@ -1,9 +1,14 @@
+var util = require("util")
+  , Dummy = require("./dummy");
+
 function Unit() {
     this.id        = 0;
     this.page      = null;
     this.format    = null;
     this.networks  = [];
 }
+
+util.inherits(Unit, Dummy);
 
 Unit.Create = function(params, callback) {
     var unit = new Unit();

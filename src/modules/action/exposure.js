@@ -1,6 +1,6 @@
 var url   = require("url")
   , async = require("async")
-  , Dummy        = require("core/dummy")
+  , util2        = require("core/util")
   , Request      = require("action/request")
   , FindBanner   = require("action/find_banner")
   , ErrorHandler = require("action/error")
@@ -28,7 +28,7 @@ function Unit(app, req, res) {
 function initRequest(app, req, callback) {
     var url_parsed = url.parse(req.url, true)
 
-    req.now     = Dummy.now();
+    req.now     = util2.now();
     req.query   = url_parsed.query;
     req.session = {};
 

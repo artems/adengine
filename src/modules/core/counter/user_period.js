@@ -1,128 +1,138 @@
 var util = require("util")
   , async = require("async")
-  , Dummy = require("../dummy")
+  , util2 = require("../util")
   , Parent = require("./user_overall")
-  , Overall = require("./overall")
 ;
 
 function Unit() {
     Parent.call(this);
 
-    this.min_interval    = 0;
     this.period_limit    = 0;
     this.period_interval = 0;
 }
 
 util.inherits(Unit, Parent);
 
-Unit.Create = function(object_name, object_id, event, limit, min_interval, period_limit, period_interval) {
+Unit.Create = function(params, redis, callback) {
     var unit = new Unit();
 
-    unit.event       = event || 1;
-    unit.object_id   = object_id;
-    unit.object_name = object_name;
-    unit.redis       = Overall.getRedisClient();
-    
-    unit.limit           = limit;
-    unit.min_interval    = min_interval;
-    unit.period_limit    = period_limit;
-    unit.period_interval = period_interval;
+    if (!Unit._isValidParams(params)) {
+        callback(new Error("ENG-0007"));
+        return;
+    }
 
-    return unit;
+    unit.event       = params.event || 1;
+    unit.object_id   = params.object_id;
+    unit.object_name = params.object_name;
+    unit.redis       = redis;
+    
+    unit.limit_all       = params.limit_all;
+    unit.min_interval    = params.min_interval;
+    unit.period_limit    = params.period_limit;
+    unit.period_interval = params.period_interval;
+
+    callback(null, unit);
+};
+
+Unit._isValidParams = function(params) {
+    if (!Parent._isValidParams(params)) {
+        return false;
+    }
+
+    if (isNaN(parseInt(params.period_limit)) || parseInt(params.limit_day) < 0) {
+        return false;
+    }
+
+    if (isNaN(parseInt(params.period_interval)) || parseInt(params.period_interval) < 0) {
+        return false;
+    }
+
+    return true;
 };
 
 Unit.prototype.incr = function(user_id, callback) {
-    var self = this;
+    var self = this, result;
 
     async.waterfall([
         function(callback) {
-            self.redis.get(self.getLastActionKeyName(user_id), callback);
+            self.getLastAction(user_id, callback);
         },
 
-        function(lastaction, callback) {
-            lastaction = lastaction || 0;
-
-            if (self.min_interval != 0 && (Dummy.nowSec() - lastaction) < self.min_interval) {
-                // еще не прошел минимальный интревал - выходим
-                callback(Error("1"));
-            } else if (self._getBeginOf(lastaction) != self._getBeginOf(Dummy.nowSec())) {
-                // новый период счетчика, обнуляем счетчик
-                self.redis.set(self.getPeriodKeyName(user_id), 0, callback);
+        function(last_action, callback) {
+            if (self.checkMinInterval(last_action)) {
+                self.processPeriodInterval(last_action, user_id, callback);
             } else {
-                // или просто идем дальше
-                callback(null, 'OK');
+                callback(Error("USR-001")); // break async chain
             }
         },
 
-        function(result, callback) {
+        function(callback) {
             var group = async.group(callback);
 
-            self.redis.incr(self.getPeriodKeyName(user_id), group.add("period"));
-            self.redis.incr(self.getOverallKeyName(user_id), group.add("overall"));
+            self.redis.incr(self.getAllKey(user_id), group.add("all"));
+            self.redis.incr(self.getPeriodKey(user_id), group.add("period"));
 
             group.finish();
         },
 
         function(counts, callback) {
-            var overall_overhead = (self.limit > 0 && counts["overall"] > self.limit)
+            var overall_overhead = (self.limit > 0 && counts["all"] > self.limit)
               , period_overhead  = (self.period_limit > 0 && counts["period"] > self.period_limit)
             ;
             
-            if (overall_overhead || period_overhead) {
-                callback(null, false);
-            } else {
-                callback(null, true);
-            }
-        },
+            result = (overall_overhead || period_overhead) ? false : true;
 
-        function(result, callback) {
-            if (!result) {
-                // неудача, откатываем все назад
-                var group = async.group(callback);
-
-                self.redis.decr(self.getPeriodKeyName(user_id), group.add("period"));
-                self.redis.decr(self.getOverallKeyName(user_id), group.add("overall"));
-
-                group.finish();
-            } else {
-                callback(null, true);
-            }
-        },
-
-        function(count, callback) {
-            if (count !== true) {
-                callback(Error("2"))
-            } else {
-                callback();
-            }
-        },
-
-        function(callback) {
-            self.redis.set(self.getLastActionKeyName(user_id), Dummy.nowSec(), callback);
+            callback();
         }
     ], function(err) {
-        if (err) {
-            if (err.message == "1" || err.message == "2") {
-                // сработали мин. интревал, либо ограничение
-                callback(null, false);
-            } else {
-                // другая ошибка
-                callback(err);
-            }
+        if (err && (err.message == "USR-001")) { // сработал мин. интревал
+            callback(null, false);
         } else {
-            // удачно увеличили счетчики
-            callback(null, true);
+            callback(err, result);
         }
     });
 };
 
+Unit.prototype.decr = function(user_id, callback) {
+    var self = this
+      , group = async.group(function(err, counts) {
+        if (err) {
+            callback(err);
+        } else {
+            self.delta--;
+            callback(null, true);
+        }
+    });
 
-Unit.prototype.getPeriodKeyName = function(user_id) {
-    return "counter.userperiod." + this.object_name + "." + this.object_id + "." + user_id + "." + this.event;
+    this.redis.decr(this.getAllKey(user_id), group.add('all'));
+    this.redis.decr(this.getPeriodKey(user_id), group.add('day'));
+
+    group.finish();
 };
 
-Unit.prototype._getBeginOf = function(timestamp) {
-    return Math.floor(timestamp / this.period_interval) * this.period_interval;
+Unit.prototype.processPeriodInterval = function(last_action, user_id, callback) {
+    if (this.getBeginOfPeriod(last_action) != this.getBeginOfPeriod(util2.now())) {
+        this.redis.set(this.getPeriodKey(user_id), 0, function(err, count) {
+            callback(err)
+        });
+    } else {
+        callback();
+    }
+};
+
+Unit.prototype.getBeginOfPeriod = function(timestamp) {
+    return Math.floor(Math.floor(timestamp / 1000) / this.period_interval) * this.period_interval;
+};
+
+Unit.prototype.getPeriodKey = function(user_id) {
+    return [
+        "counter"
+      , "period"
+      , user_id
+      , this.object_name
+      , this.object_id
+      , this.event
+    ].join(".");
 };
 
 module.exports = Unit;

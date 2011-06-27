@@ -154,7 +154,7 @@ AsyncGroup.prototype.error = function(err) {
     this.err = err;
 };
 
-AsyncGroup.prototype.call = function() {    
+AsyncGroup.prototype.call = function() {
     if (--this.count == 0) {        
         this.callback(this.err, this.results);
     }

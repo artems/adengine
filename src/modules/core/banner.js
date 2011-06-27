@@ -1,5 +1,6 @@
 var util = require("util")
-  , Dummy = require("./dummy");
+  , util2 = require("./util")
+  , Dummy = require("./carousel");
 
 function Unit() {
     Dummy.call(this);
@@ -12,9 +13,6 @@ function Unit() {
     this.creative     = null;
     this.begin        = null;
     this.end          = null;
-
-    this.counters      = {};
-    this.user_counters = {};
 }
 
 util.inherits(Unit, Dummy);
@@ -73,7 +71,7 @@ Unit._isValidParams = function(params) {
     if (params.begin && params.end) {
         var begin = new Date(params.begin)
           , end   = new Date(params.end)
-          , now   = Dummy.now();
+          , now   = util2.now();
         if (now < begin || now > end) {
             return false;
         }
@@ -94,7 +92,7 @@ Unit.prototype.canRotate = function(callback) {
             return;
         }
 
-        var now = Dummy.now();
+        var now = util2.now();
 
         if (this.end && this.end < now) {
             callback(null, false);
@@ -152,22 +150,6 @@ Unit.prototype.setCreative = function(creative) {
 
 Unit.prototype.getCreative = function() {
     return this.creative;
-};
-
-Unit.prototype.addCounter = function(counter) {
-    this.counters[counter.getEvent()] = counter;
-};
-
-Unit.prototype.getCounter = function(event) {
-    return this.counters[event];
-};
-
-Unit.prototype.addUserCounter = function(counter) {
-    this.user_counters[counter.getEvent()] = counter;
-};
-
-Unit.prototype.getUserCounter = function(event) {
-    return this.user_counters[event];
 };
 
 Unit.prototype.getCode = function(place) {

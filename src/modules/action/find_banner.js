@@ -1,4 +1,4 @@
-var Dummy = require("core/dummy");
+var util2 = require("core/util");
 
 function Unit() {
     this.flight  = null;
@@ -21,7 +21,7 @@ Unit.prototype.execute = function(uid, client, place, callback) {
     this.flight_pool = this._getFlights();
 
     this._selectFlight(function(err, is_finded) {
-        if (is_finded) {
+        if (err || is_finded) {
             callback(err, self.banner);
         } else {
             callback(new Error("ENG-0005"));
@@ -59,7 +59,7 @@ Unit.prototype._getFlights = function() {
     });
 
     this._session_vars = {
-        now        : Dummy.now()
+        now        : util2.now()
       , client_ip  : this.client.ip
       , user_agent : this.client.user_agent
       , site_id       : this.place.getPage().getSite().getId()
@@ -70,6 +70,18 @@ Unit.prototype._getFlights = function() {
 };
 
 Unit.prototype._selectFlight = function(callback) {
+    if (this.flight) {
+        var self = this
+          , flight = this.flight;
+        this.flight = null;
+
+        flight.rollback(function() {
+            self._selectFlight(callback)
+        });
+
+        return;
+    }
+    
     this.flight = this.flight_pool.shift();
 
     if (!this.flight) {
@@ -79,19 +91,31 @@ Unit.prototype._selectFlight = function(callback) {
             if (err) {
                 callback(err);
             }
-            
+
             if (result) {
                 this.profile_pool = this.flight.getProfiles();
                 this._selectProfile(callback);
             } else {
                 // TODO try to use process.nextTick
                 this._selectFlight(callback);
-            }         
+            }
         }.bind(this));
     }
 };
 
 Unit.prototype._selectProfile = function(callback) {
+    if (this.profile) {
+        var self = this
+          , profile = this.profile;
+        this.profile = null;
+
+        profile.rollback(function() {
+            self._selectProfile(callback)
+        });
+
+        return;
+    }
+
     this.profile = this.profile_pool.shift();
 
     if (!this.profile) {
@@ -101,19 +125,31 @@ Unit.prototype._selectProfile = function(callback) {
             if (err) {
                 callback(err);
             }
-            
+
             if (result) {
                 this.banner_pool = this.profile.getBanners();
                 this._selectBanner(callback);
             } else {
                 // TODO try to use process.nextTick
                 this._selectProfile(callback);
-            } 
+            }
         }.bind(this));
     }
 };
 
 Unit.prototype._selectBanner = function(callback) {
+    if (this.banner) {
+        var self = this
+          , banner = this.banner;
+        this.banner = null;
+
+        banner.rollback(function() {
+            self._selectBanner(callback)
+        });
+
+        return;
+    }
+
     this.banner = this.banner_pool.shift();
 
     if (!this.banner) {
@@ -123,13 +159,13 @@ Unit.prototype._selectBanner = function(callback) {
             if (err) {
                 callback(err);
             }
-            
+
             if (result) {
                 this._updateCounters(callback);
             } else {
                 // TODO try to use process.nextTick
                 this._selectBanner(callback);
-            } 
+            }
         }.bind(this));
     }
 };
