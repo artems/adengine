@@ -486,7 +486,7 @@ Unit.prototype.loadPages = function(site_id, callback) {
                     
                     factory.createPage(item, group.add());
                 } else {
-                    group.finish(err);                    
+                    group.finish(err);
                 }
             });
         }
@@ -494,7 +494,7 @@ Unit.prototype.loadPages = function(site_id, callback) {
         err && console.log(err.stack);
         callback(null, page_id);
     });
-}
+};
 
 Unit.prototype.loadPlaces = function(page_id, callback) {
     var mongo = this.app.mongo

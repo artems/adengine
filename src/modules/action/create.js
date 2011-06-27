@@ -200,14 +200,16 @@ Unit.prototype.createBanner = function(item, callback) {
 };
 
 Unit.prototype.createSite = function(item, callback) {
-    var registry = this.registry;
+    var self = this, registry = this.registry;
     
     Site.Create(item, function(err, object) {
         if (!err) {                        
             registry.site[item.id] = object;
-        } 
-        
-        callback(err);
+
+            self._addCounters("site", object, item, callback);
+        } else {
+            callback(err);
+        }
     }); 
 };
 
@@ -229,9 +231,11 @@ Unit.prototype.createPage = function(item, callback) {
             }
             
             registry.page[item.id] = object;
-        } 
-        
-        callback(err);
+
+            self._addCounters("page", object, item, callback);
+        } else {
+            callback(err);
+        }
     }); 
 };
 
@@ -262,9 +266,11 @@ Unit.prototype.createPlace = function(item, callback) {
             }
             
             registry.place[item.id] = object;
-        } 
-        
-        callback(err);
+
+            self._addCounters("place", object, item, callback);
+        } else {
+            callback(err);
+        }
     });
 };
 
@@ -356,18 +362,12 @@ Unit.prototype._addOverallCounter = function(type, object, item, callback) {
             // Сохранить счетчик в общем пуле, где сбрасывать дельту
             self.app.counter.addCounter(counter);
         }
-        
+
         callback(err);
     });
 };
 
 Unit.prototype._addUserOverallCounter = function(type, object, item, callback) {
-    var counter
-      , overall_limit   = 0
-      , min_interval    = 0
-      , period_limit    = 0
-      , period_interval = 0
-    ;
     var params = {
         event       : 1
       , object_id   : item.id

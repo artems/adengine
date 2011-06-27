@@ -80,10 +80,10 @@ Unit.prototype.incr = function(user_id, callback) {
     });
 };
 
-Unit.prototype.decr = function(callback) {
+Unit.prototype.decr = function(user_id, callback) {
     var self = this;
 
-    this.redis.decr(this.getAllKey(), function(err, count) {
+    this.redis.decr(this.getAllKey(user_id), function(err, count) {
         if (err) {
             callback(err);
         } else {
@@ -98,7 +98,7 @@ Unit.prototype.getLastAction = function(user_id, callback) {
 };
 
 Unit.prototype.setLastAction = function(user_id, callback) {
-    this.redis.set(this.getLastActionKey(user_id), util2.now(), callback);
+    this.redis.set(this.getLastActionKey(user_id), +util2.now(), callback);
 };
 
 Unit.prototype.checkMinInterval = function(last_action) {

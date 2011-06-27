@@ -1,5 +1,5 @@
 var util = require("util")
-  , Dummy = require("./dummy");
+  , Dummy = require("./carousel");
   
 function Unit() {
     Dummy.call(this);

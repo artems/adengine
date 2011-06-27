@@ -1,7 +1,9 @@
 var util = require("util")
-  , Dummy = require("./dummy");
+  , Dummy = require("./carousel");
 
 function Unit() {
+    Dummy.call(this);
+
     this.id        = 0;
     this.page      = null;
     this.format    = null;

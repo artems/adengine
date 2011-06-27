@@ -67,7 +67,7 @@ Unit.prototype.getTarget = function(target_id) {
 };
 
 Unit.prototype.canRotate = function(session_vars, callback) {
-    Dummy.prototype.canRotate.call(this, function(err, result) {
+    Dummy.prototype.canRotate.call(this, session_vars, function(err, result) {
         if (err || !result) {
             callback(err, result);
             return;

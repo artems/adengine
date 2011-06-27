@@ -60,6 +60,7 @@ Unit.prototype._getFlights = function() {
 
     this._session_vars = {
         now        : util2.now()
+      , uid        : this.uid
       , client_ip  : this.client.ip
       , user_agent : this.client.user_agent
       , site_id       : this.place.getPage().getSite().getId()
@@ -75,7 +76,7 @@ Unit.prototype._selectFlight = function(callback) {
           , flight = this.flight;
         this.flight = null;
 
-        flight.rollback(function() {
+        flight.rollback(this.uid, function() {
             self._selectFlight(callback)
         });
 
@@ -87,7 +88,7 @@ Unit.prototype._selectFlight = function(callback) {
     if (!this.flight) {
         callback(null, false);
     } else {
-        this.flight.canRotate(function(err, result) {
+        this.flight.rotate(this._session_vars, function(err, result) {
             if (err) {
                 callback(err);
             }
@@ -109,7 +110,7 @@ Unit.prototype._selectProfile = function(callback) {
           , profile = this.profile;
         this.profile = null;
 
-        profile.rollback(function() {
+        profile.rollback(this.uid, function() {
             self._selectProfile(callback)
         });
 
@@ -121,7 +122,7 @@ Unit.prototype._selectProfile = function(callback) {
     if (!this.profile) {
         this._selectFlight(callback);
     } else {
-        this.profile.canRotate(this._session_vars, function(err, result) {
+        this.profile.rotate(this._session_vars, function(err, result) {
             if (err) {
                 callback(err);
             }
@@ -143,7 +144,7 @@ Unit.prototype._selectBanner = function(callback) {
           , banner = this.banner;
         this.banner = null;
 
-        banner.rollback(function() {
+        banner.rollback(this.uid, function() {
             self._selectBanner(callback)
         });
 
@@ -155,13 +156,13 @@ Unit.prototype._selectBanner = function(callback) {
     if (!this.banner) {
         this._selectProfile(callback);
     } else {
-        this.banner.canRotate(function(err, result) {
+        this.banner.rotate(this._session_vars, function(err, result) {
             if (err) {
                 callback(err);
             }
 
             if (result) {
-                this._updateCounters(callback);
+                this._finish(callback);
             } else {
                 // TODO try to use process.nextTick
                 this._selectBanner(callback);
@@ -171,6 +172,11 @@ Unit.prototype._selectBanner = function(callback) {
 };
 
 var async = require("async");
+
+Unit.prototype._finish = function(callback) {
+    callback(null, true);
+};
+
 
 Unit.prototype._updateCounters = function(callback) {
     var self = this

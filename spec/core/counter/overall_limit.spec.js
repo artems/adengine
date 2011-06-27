@@ -101,15 +101,4 @@ describe('OverallLimitCounter', function() {
             });
         }, 0, 1);
     });
-
-    it('should правильно обрабатывать дельту, если стработало ограничение', function() {
-        getCounter(function(err, counter) {
-            counter.incr(function(err, count) {
-                counter.incr(function(err, count) {
-                    var delta = counter.getCountAndReset();
-                    expect(delta).toEqual(1);
-                });
-            });
-        }, 1, 0);
-    });
 });

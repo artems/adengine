@@ -12,7 +12,7 @@ function Unit() {
 
 util.inherits(Unit, Dummy);
 
-Unit.prototype.canRotate = function(callback) {
+Unit.prototype.canRotate = function(session_vars, callback) {
     if (this.deleted) {
         callback(null, false);
         return;
@@ -37,7 +37,7 @@ Unit.prototype.getUserCounter = function(event) {
     return this.user_counters[event];
 };
 
-Unit.prototype.rotate = function(callback) {
+Unit.prototype.rotate = function(session_vars, callback) {
     var group = async.group(function(err, group) {
         var result, group_array = [];
 
@@ -52,20 +52,20 @@ Unit.prototype.rotate = function(callback) {
         callback(err, result);
     });
 
-    this.canRotate(group.add());
+    this.canRotate(session_vars, group.add());
 
     if (this.getCounter(1)) {
         this.getCounter(1).incr(group.add());
     }
 
     if (this.getUserCounter(1)) {
-        this.getUserCounter(1).incr(group.add());
+        this.getUserCounter(1).incr(session_vars.uid, group.add());
     }
 
     group.finish();
 };
 
-Unit.prototype.rollback = function(callback) {
+Unit.prototype.rollback = function(uid, callback) {
     var group = async.group(callback);
 
     if (this.getCounter(1)) {
@@ -73,7 +73,7 @@ Unit.prototype.rollback = function(callback) {
     }
 
     if (this.getUserCounter(1)) {
-        this.getUserCounter(1).decr(group.add());
+        this.getUserCounter(1).decr(uid, group.add());
     }
 
     group.finish();

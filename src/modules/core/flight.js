@@ -161,8 +161,8 @@ Unit.prototype.getProfiles = function() {
     return result;
 };
 
-Unit.prototype.canRotate = function(callback) {
-    Dummy.prototype.canRotate.call(this, function(err, result) {
+Unit.prototype.canRotate = function(session_vars, callback) {
+    Dummy.prototype.canRotate.call(this, session_vars, function(err, result) {
         if (err || !result) {
             callback(err, result);
             return;

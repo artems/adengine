@@ -17,6 +17,10 @@ function Unit(app, req, res) {
         },
 
         function(callback) {
+            updateCounters(req, callback);
+        },
+
+        function(callback) {
             showBanner(req, res, callback)
         }
     ], function(err) {
@@ -85,6 +89,52 @@ function getSitePlug(req, callback) {
 
         callback();
     }
+}
+
+function updateCounters(req, callback) {
+    var uid     = req.session.uid
+      , banner  = req.session.banner
+      , profile = banner.getProfile()
+      , flight  = profile.getFlight()
+      , place   = req.session.place
+      , page    = place.getPage()
+      , site    = page.getSite()
+    ;
+
+    async.parallel([
+        function(callback) {
+            place.getCounter(1).incr(callback);
+        },
+        function(callback) {
+            page.getCounter(1).incr(callback);
+        },
+        function(callback) {
+            site.getCounter(1).incr(callback);
+        },
+        function(callback) {
+            if (banner.getUserCounter(1)) {
+                banner.getUserCounter(1).setLastAction(uid, callback);
+            } else {
+                callback();
+            }
+        },
+        function(callback) {
+            if (profile.getUserCounter(1)) {
+                profile.getUserCounter(1).setLastAction(uid, callback);
+            } else {
+                callback();
+            }
+        },
+        function(callback) {
+            if (flight.getUserCounter(1)) {
+                flight.getUserCounter(1).setLastAction(uid, callback);
+            } else {
+                callback();
+            }
+        }
+    ], function(err, results) {
+        callback(err);
+    });
 }
 
 function showBanner(req, res, callback) {
