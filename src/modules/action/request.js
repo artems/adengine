@@ -50,6 +50,7 @@ Unit.findPlace = function(app, req, callback) {
       , page_id   = parseInt(req.query.pid) || 0
       , place_id  = parseInt(req.query.lid) || 0
       , format_id = parseInt(req.query.fid) || 0
+      , check_referer = app.config.security.check_referer
       ;
 
     // TODO проверить preg раздела
@@ -72,7 +73,7 @@ Unit.findPlace = function(app, req, callback) {
               , preg = site.getPreg()
               , url  = req.headers['referer'];
 
-            if (!preg.test(url)) {
+            if (check_referer && !preg.test(url)) {
                 callback(new Error("ENG-0011"));
             } else {
                 callback();

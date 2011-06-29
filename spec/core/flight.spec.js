@@ -184,7 +184,7 @@ describe('Flight', function() {
     describe('canRotate', function() {
         it('should должен откручаваться по умолчанию', function() {
             getFlight(function(err, flight) {
-                flight.canRotate(function(err, result) {
+                flight.canRotate({}, function(err, result) {
                     expect(result).toBeTruthy();
                 });
             });
@@ -193,7 +193,7 @@ describe('Flight', function() {
         it('should не должен откручаваться, если balance меньше 0', function() {
             getFlight(function(err, flight) {
                 flight.setBalance(-0.1);
-                flight.canRotate(function(err, result) {
+                flight.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });
@@ -203,7 +203,7 @@ describe('Flight', function() {
             getFlight(function(err, flight) {
                 flight.setEnd(new Date(2010, 12, 31));
                 
-                flight.canRotate(function(err, result) {
+                flight.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });

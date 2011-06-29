@@ -72,6 +72,9 @@ describe('OverallCounter', function() {
         var redis = {
             incr: function(key, callback) {
                 callback(null, 1);
+            },
+            expire : function(key, seconds, callback) {
+                callback();
             }
         };
         

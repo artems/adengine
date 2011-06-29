@@ -69,8 +69,8 @@ Unit.prototype.incr = function(user_id, callback) {
         function(callback) {
             var group = async.group(callback);
 
-            self.redis.incr(self.getAllKey(user_id), group.add("all"));
-            self.redis.incr(self.getPeriodKey(user_id), group.add("period"));
+            self.incrAll(user_id, group.add("all"));
+            self.incrPeriod(user_id, group.add("period"));
 
             group.finish();
         },
@@ -104,31 +104,42 @@ Unit.prototype.decr = function(user_id, callback) {
         }
     });
 
-    this.redis.decr(this.getAllKey(user_id), group.add('all'));
-    this.redis.decr(this.getPeriodKey(user_id), group.add('day'));
+    this.decrAll(user_id, group.add('all'));
+    this.decrPeriod(user_id, group.add('period'));
 
     group.finish();
 };
 
 Unit.prototype.processPeriodInterval = function(last_action, user_id, callback) {
     if (this.getBeginOfPeriod(last_action) != this.getBeginOfPeriod(util2.now())) {
-        this.redis.set(this.getPeriodKey(user_id), 0, function(err, count) {
-            callback(err)
-        });
+        this.setPeriod(user_id, callback);
     } else {
         callback();
     }
+};
+
+Unit.prototype.setPeriod = function(user_id, callback) {
+    this.redis.hset(this.getPeriodKey(), user_id, 0, function(err, count) {
+        callback(err)
+    });
+};
+
+Unit.prototype.incrPeriod = function(user_id, callback) {
+    this.redis.hincrby(this.getPeriodKey(), user_id, 1, callback);
+};
+
+Unit.prototype.decrPeriod = function(user_id, callback) {
+    this.redis.hincrby(this.getPeriodKey(), user_id, -1, callback);
 };
 
 Unit.prototype.getBeginOfPeriod = function(timestamp) {
     return Math.floor(Math.floor(timestamp / 1000) / this.period_interval) * this.period_interval;
 };
 
-Unit.prototype.getPeriodKey = function(user_id) {
+Unit.prototype.getPeriodKey = function() {
     return [
         "counter"
       , "period"
-      , user_id
       , this.object_name
       , this.object_id
       , this.event

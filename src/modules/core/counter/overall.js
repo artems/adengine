@@ -57,6 +57,11 @@ Unit.prototype.incr = function(callback) {
     this.redis.incr(this.getAllKey(), group.add('all'));
     this.redis.incr(this.getDayKey(), group.add('day'));
 
+    // 604800 = (60s * 60m * 24h * 2d) = 7 days
+    this.redis.expire(this.getAllKey(), 604800, group.add('all_expire'));
+    // 172800 = (60s * 60m * 24h * 2d) = 2 days
+    this.redis.expire(this.getDayKey(), 172800, group.add('day_expire'));
+
     group.finish();
 };
 

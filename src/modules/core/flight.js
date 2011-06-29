@@ -22,19 +22,30 @@ util.inherits(Unit, Dummy);
 Unit.Create = function(params, callback) {
     var unit = new Unit();
 
+    Unit.Update(unit, params, callback);
+};
+
+Unit.Update = function(unit, params, callback) {
     if (!Unit._isValidParams(params)) {
         callback(new Error("ENG-0007"));
         return;
     }
 
-    unit.id = parseInt(params.id);    
+    unit.id = parseInt(params.id);
     unit.priority = parseInt(params.priority);
     unit.balance = parseFloat(params.balance);
     unit.distribution = params.distribution;
     unit.is_plug = params.is_plug;
-    unit.buyout = params.buyout || null;
-    unit.network = params.network || null;
-    
+
+    if (params.buyout) {
+        if (params.buyout["adv"]) {
+            unit.setBuyout(params.buyout["adv"], "adv");
+        }
+        if (params.buyout["pub"]) {
+            unit.setBuyout(params.buyout["pub"], "pub");
+        }
+    }
+
     if (params.begin && params.end) {
         unit.begin = new Date(params.begin);
         unit.end = new Date(params.end)

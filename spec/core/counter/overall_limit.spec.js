@@ -60,6 +60,10 @@ describe('OverallLimitCounter', function() {
                 if (!count[key])
                     count[key] = 0;
                 callback(null, --count[key]);
+            },
+            
+            expire : function(key, seconds, callback) {
+                callback();
             }
         };
 

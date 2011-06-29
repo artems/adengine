@@ -152,7 +152,7 @@ describe('Banner', function() {
     describe('canRotate', function() {
         it('can откручаваться по умолчанию', function() {
             getBanner(function(err, banner) {
-                banner.canRotate(function(err, result) {
+                banner.canRotate({}, function(err, result) {
                     expect(result).toBeTruthy();
                 });
             });
@@ -162,7 +162,7 @@ describe('Banner', function() {
             getBanner(function(err, banner) {
                 banner.setEnd(new Date(2010, 12, 31));
                 
-                banner.canRotate(function(err, result) {
+                banner.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });
@@ -172,7 +172,7 @@ describe('Banner', function() {
             getBanner(function(err, banner) {
                 banner.setCreative(null);
 
-                banner.canRotate(function(err, result) {
+                banner.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });
@@ -184,7 +184,7 @@ describe('Banner', function() {
                     verify: function(callback) { callback(null, false) }
                 });
 
-                banner.canRotate(function(err, result) {
+                banner.canRotate({}, function(err, result) {
                     expect(result).toBeFalsy();
                 });
             });

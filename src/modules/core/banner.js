@@ -173,7 +173,7 @@ Unit.prototype.getCode = function(place) {
     */
     
     code = code
-        .replace(/#host#/g, 'localhost:8080')
+        .replace(/#host#/g, 'adchange.co.cc') // TODO move to config
         .replace(/#place_id#/g, place.id)
         .replace(/#flight_id#/g, flight.id)
         .replace(/#banner_id#/g, this.id)

@@ -64,7 +64,7 @@ Unit.prototype.incr = function(user_id, callback) {
         },
 
         function(callback) {
-            self.redis.incr(self.getAllKey(user_id), callback);
+            self.incrAll(user_id, callback);
         },
 
         function(count, callback) {
@@ -83,7 +83,7 @@ Unit.prototype.incr = function(user_id, callback) {
 Unit.prototype.decr = function(user_id, callback) {
     var self = this;
 
-    this.redis.decr(this.getAllKey(user_id), function(err, count) {
+    this.decrAll(user_id, function(err, count) {
         if (err) {
             callback(err);
         } else {
@@ -94,12 +94,21 @@ Unit.prototype.decr = function(user_id, callback) {
 };
 
 Unit.prototype.getLastAction = function(user_id, callback) {
-    this.redis.get(this.getLastActionKey(user_id), callback);
+    this.redis.hget(this.getLastActionKey(), user_id, callback);
 };
 
 Unit.prototype.setLastAction = function(user_id, callback) {
-    this.redis.set(this.getLastActionKey(user_id), +util2.now(), callback);
+    this.redis.hset(this.getLastActionKey(), user_id, +util2.now(), callback);
 };
+
+Unit.prototype.incrAll = function(user_id, callback) {
+    this.redis.hincrby(this.getAllKey(), user_id, 1, callback);
+};
+
+Unit.prototype.decrAll = function(user_id, callback) {
+    this.redis.hincrby(this.getAllKey(), user_id, -1, callback);
+};
+
 
 Unit.prototype.checkMinInterval = function(last_action) {
     last_action = last_action || 0;
@@ -111,22 +120,20 @@ Unit.prototype.checkLimit = function(count) {
     return this.limit_all == 0 || this.limit_all >= count;
 };
 
-Unit.prototype.getAllKey = function(user_id) {
+Unit.prototype.getAllKey = function() {
     return [
         "counter"
       , "user"
-      , user_id
       , this.object_name
       , this.object_id
       , this.event
     ].join(".");
 };
 
-Unit.prototype.getLastActionKey = function(user_id) {
+Unit.prototype.getLastActionKey = function() {
     return [
         "counter"
       , "action"
-      , user_id
       , this.object_name
       , this.object_id
       , this.event

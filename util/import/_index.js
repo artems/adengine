@@ -2,7 +2,7 @@ var boot = require("./_boot")
   , async = require("async")
 ;
 
-var mode   = ['all', 'basic']
+var mode   = ['all', 'basic'];
 var object = ['format', 'template', 'network', 'category', 'site', 'site_page', 'site_place', 'site_plug',  'campaign', 'flight', 'profile', 'creative', 'banner', 'geo_ip'];
 
 var target = process.argv.pop();

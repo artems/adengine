@@ -22,6 +22,10 @@ module.exports = {
         format : ':remote-addr [:date] ":method :url :http-version" :status ":user-agent"'
     },
 
+    security : {
+        check_referer: false
+    },
+
     counters : {
         interval : 120000 /* 2 min */
       , tmp_path : "./tmp"

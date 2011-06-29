@@ -314,10 +314,14 @@ Unit.prototype.loadBanners = function(profile_id, callback) {
         function(collection, callback) {
             var now   = util2.now();
             var query = {
-                profile_id : {$in: profile_id}
-              , state      : "active"
-              , begin      : {$lt: now}
-              , end        : {$gt: now}              
+                $or : [{
+                    is_plug : true
+                }, {
+                    profile_id : {$in: profile_id}
+                  , state      : "active"
+                  , begin      : {$lt: now}
+                  , end        : {$gt: now}
+                }]
             };
             
             collection.find(query, callback);
