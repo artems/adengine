@@ -1,0 +1,13 @@
+Source: adengine
+Section: misc
+Priority: extra
+Maintainer: Artem Semenov <tema.semenov@gmail.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://adchange.co.cc
+
+Package: adengine
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: adexchange engine
+ adexchange engine
