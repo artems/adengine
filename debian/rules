@@ -11,13 +11,13 @@ DEB_WWW_DESTDIR=debian/$(DEB_SOURCE_PACKAGE)/$(PRJDIR)
 install/$(DEB_SOURCE_PACKAGE)::
 	mkdir -p $(DEB_WWW_DESTDIR)
 
-	cp -r `ls -I debian` $(DEB_PRJWWW_DESTDIR)
+	cp -r `ls -I debian` $(DEB_WWW_DESTDIR)
 
-	rm -rf $(DEB_PRJWWW_DESTDIR).git
-	rm -rf $(DEB_PRJWWW_DESTDIR)test
-	rm -rf $(DEB_PRJWWW_DESTDIR)spec
-	rm -rf $(DEB_PRJWWW_DESTDIR)schema
-	rm -rf $(DEB_PRJWWW_DESTDIR)doc
-	rm -rf $(DEB_PRJWWW_DESTDIR)db
-	rm -f  $(DEB_PRJWWW_DESTDIR)Makefile
-	rm -f  $(DEB_PRJWWW_DESTDIR).gitignore
+	rm -rf $(DEB_WWW_DESTDIR).git
+	rm -rf $(DEB_WWW_DESTDIR)test
+	rm -rf $(DEB_WWW_DESTDIR)spec
+	rm -rf $(DEB_WWW_DESTDIR)schema
+	rm -rf $(DEB_WWW_DESTDIR)doc
+	rm -rf $(DEB_WWW_DESTDIR)db
+	rm -f  $(DEB_WWW_DESTDIR)Makefile
+	rm -f  $(DEB_WWW_DESTDIR).gitignore
