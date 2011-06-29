@@ -4,15 +4,15 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 
 export DH_VERBOSE=1
 
-WWWDIR=usr/local/nodejs/
-PRJDIR=$(WWWDIR)$(DEB_SOURCE_PACKAGE)/
+WWWDIR=var/www/
+PRJDIR=$(WWWDIR)adchange/
 DEB_WWW_DESTDIR=debian/$(DEB_SOURCE_PACKAGE)/$(PRJDIR)
 
 install/$(DEB_SOURCE_PACKAGE)::
 	mkdir -p $(DEB_WWW_DESTDIR)
-
+	
 	cp -r `ls -I debian` $(DEB_WWW_DESTDIR)
-
+	
 	rm -rf $(DEB_WWW_DESTDIR).git
 	rm -rf $(DEB_WWW_DESTDIR)test
 	rm -rf $(DEB_WWW_DESTDIR)spec
@@ -21,3 +21,5 @@ install/$(DEB_SOURCE_PACKAGE)::
 	rm -rf $(DEB_WWW_DESTDIR)db
 	rm -f  $(DEB_WWW_DESTDIR)Makefile
 	rm -f  $(DEB_WWW_DESTDIR).gitignore
+	
+
