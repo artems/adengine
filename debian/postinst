@@ -3,3 +3,5 @@
 chown www-data:www-data -R /var/www/adchange
 
 /etc/init.d/node-adchange restart
+
+#DEBHELPER#
