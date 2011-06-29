@@ -1,10 +1,10 @@
-PATH=/usr/local/bin/:$(PATH)
+all: build
 
-all:
+build:
 
 install:
 
 test:
 	jasmine-node spec
 
-.PHONY: all
+.PHONY: all build install

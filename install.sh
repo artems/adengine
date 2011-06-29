@@ -1,8 +1,7 @@
-#!/bin/bash
-
 aptitude update
 aptitude full-upgrade
 aptitude install curl libssl-dev nginx redis-server monit
+
 #install mongo (deb)
 #install nodejs (deb)
 # wget http://nodejs.org/dist/node-v0.4.8.tar.gz
